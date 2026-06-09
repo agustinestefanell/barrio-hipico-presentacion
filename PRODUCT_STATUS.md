@@ -32,9 +32,12 @@ Estados permitidos: `Closed`, `Partial`, `UI-only`, `Deferred`, `Broken`, `Needs
 |---|---|---|---|---|---|
 | Auth | Supabase Auth email/password | Closed | `login/actions.ts` usa `signInWithPassword` y perfil activo | Verificar Vercel fuera del repo | `ae78647` |
 | Auth | Sin signup público | Closed | No existe acción/ruta signup | Mantener | `ae78647` |
-| Owner | Panel Owner | Partial | Funciones globales implementadas; UI actual tiene cambios sin commit | Prueba visual autenticada y commit | `ae78647` + worktree |
-| Owner | Instructivo interno | Partial | `/admin/instructivo` protegido con `requireOwner()` | Prueba Owner y commit | worktree |
-| Consultor | Panel Consultor | Partial | Accesos propios y revocación implementados; UI diferenciada sin commit | Prueba con consultor real y commit | `ae78647` + worktree |
+| Owner | Panel Owner | Closed | Funciones globales, contraseña visible bajo demanda y copia del link Consultor implementadas | Prueba periódica autenticada | esta OE |
+| Owner | Instructivo interno | Closed | `/admin/instructivo` protegido con `requireOwner()` y enlazado desde Panel Owner | Prueba periódica Owner | esta OE |
+| Consultor | Panel Consultor | Closed | Accesos propios, revocación, UI diferenciada y enlace al instructivo implementados | Prueba periódica con consultor real | esta OE |
+| Consultor | Instructivo operativo | Closed | `/consultor/instructivo` protegido con `requireConsultantOrOwner()` | Mantener contenido actualizado | esta OE |
+| Usabilidad | Ver/ocultar contraseñas | Closed | `PasswordField` reutilizado en login y creación de consultor | Mantener oculto por defecto | esta OE |
+| Usabilidad | Copiar link Panel Consultor | Closed | `CopyButton` usa el origen actual y `/consultor` | Requiere permiso de portapapeles del navegador | esta OE |
 | Visitante | Link + PIN | Closed | `/access/[slug]`, PIN server-side y redirect a `/` | Prueba periódica producción | `ae78647` |
 | Seguridad | Revocación | Closed | Owner revoca global; Consultor revoca propios | Ninguno identificado | `ae78647` |
 | Seguridad | Logs | Closed | `access_logs`, eventos y vista Owner | Revisar volumen/retención futura | `ae78647` |
@@ -51,5 +54,6 @@ Estados permitidos: `Closed`, `Partial`, `UI-only`, `Deferred`, `Broken`, `Needs
 | GitHub | `origin/main` | Closed | remoto y rama observables | Mantener commits acotados | Estado auditado |
 | Vercel | Deploy/configuración remota | Needs Review | `.vercel` ausente; no verificable desde repo | Verificar proyecto y env vars en Vercel | No identificado |
 | Secrets | `.env.local` ignorado | Closed | `.gitignore` contiene `.env*`; `git status --ignored` lo marca ignorado | Mantener plantilla vacía | `ae78647` |
-| Docs | Instructivo Owner/Consultor/Visitante | Partial | ruta creada sin commit | Commit y prueba Owner | worktree |
+| Docs | Instructivo Owner/Consultor/Visitante | Closed | `/admin/instructivo` protegido con `requireOwner()` | Mantener contenido actualizado | esta OE |
+| Docs | Instructivo Consultor | Closed | ruta operativa protegida y enlazada desde Panel Consultor | Mantener contenido actualizado | esta OE |
 | Docs | Protocolo documental | Closed | seis documentos creados y validados en esta OE | Mantenerlos actualizados en futuras OEs | esta OE |

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import PasswordField from "@/components/PasswordField";
 import { loginAction, type LoginState } from "./actions";
 
 const initialState: LoginState = { error: "" };
@@ -14,10 +15,12 @@ export default function LoginForm() {
         Email
         <input name="email" type="email" autoComplete="email" required />
       </label>
-      <label>
-        Contraseña
-        <input name="password" type="password" autoComplete="current-password" required />
-      </label>
+      <PasswordField
+        autoComplete="current-password"
+        label="Contraseña"
+        name="password"
+        required
+      />
       {state.error && <p className="form-error">{state.error}</p>}
       <button className="access-button" type="submit" disabled={pending}>
         {pending ? "Ingresando..." : "Ingresar"}

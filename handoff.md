@@ -83,30 +83,30 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Diagnóstico:** Admin, Consultor, Login y PIN necesitaban jerarquía y legibilidad.
 - **Archivos tocados:** páginas privadas y `src/app/globals.css`.
 - **Cambios realizados:** headers, cards, tablas responsive, badges y estados vacíos.
-- **Resultado de build:** confirmado antes de crear este handoff.
-- **Commit:** No identificado; cambios actuales pendientes de commit.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron al cerrar la OE de usabilidad.
+- **Commit:** incluido en la OE de mejoras de usabilidad; consultar el historial.
 - **Riesgos/pendientes:** prueba visual autenticada completa.
-- **Estado final:** Partial.
+- **Estado final:** Closed.
 
 ### 2026-06-09 — Instructivo interno
 
 - **Diagnóstico:** faltaba una guía operativa visible para el Owner.
 - **Archivos tocados:** `src/app/admin/instructivo/page.tsx`, `src/app/admin/page.tsx`, `src/app/globals.css`.
 - **Cambios realizados:** ruta protegida solo Owner y guía Owner/Consultor/Visitante.
-- **Resultado de build:** confirmado antes de crear este handoff.
-- **Commit:** No identificado; archivo actual pendiente de commit.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron al cerrar la OE de usabilidad.
+- **Commit:** incluido en la OE de mejoras de usabilidad; consultar el historial.
 - **Riesgos/pendientes:** prueba visual autenticada Owner.
-- **Estado final:** Partial.
+- **Estado final:** Closed.
 
 ### 2026-06-09 — Diferenciación Panel Owner / Panel Consultor
 
 - **Diagnóstico:** los roles podían confundirse visualmente.
 - **Archivos tocados:** `src/app/admin/page.tsx`, `src/app/consultor/page.tsx`, `src/app/admin/instructivo/page.tsx`, `src/app/globals.css`.
 - **Cambios realizados:** títulos exactos, capacidades visibles, instructivo bajo título Owner y anonimato visual del Owner en Consultor.
-- **Resultado de build:** confirmado antes de crear este handoff.
-- **Commit:** No identificado; cambios actuales pendientes de commit.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron al cerrar la OE de usabilidad.
+- **Commit:** incluido en la OE de mejoras de usabilidad; consultar el historial.
 - **Riesgos/pendientes:** prueba visual con usuarios reales de ambos roles.
-- **Estado final:** Partial.
+- **Estado final:** Closed.
 
 ### 2026-06-09 — Aplicación del protocolo documental
 
@@ -116,4 +116,15 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Resultado de build:** `npm run lint` y `npm run build` pasaron correctamente el 2026-06-09.
 - **Commit:** creado por esta OE; consultar el último commit del historial.
 - **Riesgos/pendientes:** mantener los seis documentos actualizados en futuras OEs.
+- **Estado final:** Closed.
+
+### 2026-06-09 — Mejoras de usabilidad en accesos privados
+
+- **Diagnóstico:** login y alta de consultores no permitían verificar visualmente la contraseña; el Owner no tenía acción directa para copiar el acceso al Panel Consultor; el Consultor no contaba con una guía operativa propia.
+- **Archivos tocados:** `src/components/PasswordField.tsx`, `src/components/CopyButton.tsx`, `src/app/login/LoginForm.tsx`, `src/app/admin/page.tsx`, `src/app/consultor/page.tsx`, `src/app/consultor/instructivo/page.tsx`, `src/app/globals.css`, `BarrioInglesPlans.md`, `PRODUCT_STATUS.md`, `handoff.md`.
+- **Cambios realizados:** password oculto por defecto con control Ver/Ocultar, copia de origen actual más `/consultor`, instructivo específico para generar y enviar link + PIN, y enlace visible desde Panel Consultor.
+- **Protección:** `/consultor/instructivo` usa `requireConsultantOrOwner()`; no se modificó auth, Supabase, roles ni permisos.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron correctamente; el build incluye `/consultor/instructivo`.
+- **Commit:** creado por esta OE; consultar el último commit del historial.
+- **Riesgos/pendientes:** verificar visualmente con sesiones Owner y Consultor; el portapapeles depende del permiso del navegador.
 - **Estado final:** Closed.

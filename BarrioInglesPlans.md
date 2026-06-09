@@ -32,6 +32,7 @@ src/
     admin/                # Panel Owner
       instructivo/        # guía interna solo Owner
     consultor/            # Panel Consultor
+      instructivo/        # guía operativa para Consultor u Owner
     login/                # login Owner/Consultor
     polo-logistico/       # narrativa territorial separada
     auth-actions.ts       # logout
@@ -66,6 +67,7 @@ proxy.ts                  # protección básica y refresh de sesión
 | `/admin` | Solo Owner | `requireOwner()` |
 | `/admin/instructivo` | Solo Owner | `requireOwner()` |
 | `/consultor` | Consultor u Owner | `requireConsultantOrOwner()` |
+| `/consultor/instructivo` | Consultor u Owner | `requireConsultantOrOwner()` |
 
 Los assets de `/_next/*`, `/images/*`, favicon y extensiones de imagen admitidas quedan fuera del matcher de protección.
 
@@ -87,6 +89,7 @@ Los assets de `/_next/*`, `/images/*`, favicon y extensiones de imagen admitidas
 - Identificación visual actual: **Panel Consultor** / **Panel de un consultor creado por el dueño**.
 - Puede crear links únicos y PINs propios.
 - Puede ver y revocar sus propios accesos.
+- Puede consultar el instructivo operativo en `/consultor/instructivo`.
 - No puede crear consultores ni entrar a `/admin`.
 - El panel no muestra la identidad del Owner.
 
@@ -155,6 +158,7 @@ La autorización fina no depende solo del proxy:
 
 - `/admin` y `/admin/instructivo` ejecutan `requireOwner()`.
 - `/consultor` ejecuta `requireConsultantOrOwner()`.
+- `/consultor/instructivo` ejecuta `requireConsultantOrOwner()`.
 - La presentación ejecuta `requirePresentationAccess()`.
 
 ## 9. Presentación principal

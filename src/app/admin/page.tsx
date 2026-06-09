@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/auth-actions";
+import CopyButton from "@/components/CopyButton";
+import PasswordField from "@/components/PasswordField";
 import { requireOwner } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -48,9 +50,20 @@ export default async function AdminPage() {
     <main className="panel-shell admin-shell">
       <header className="panel-header admin-header">
         <div className="panel-heading">
-          <p className="eyebrow">Owner Admin</p>
-          <h1>Panel principal</h1>
-          <p className="panel-subtitle">Gestión de consultores, accesos y actividad.</p>
+          <p className="eyebrow">Owner</p>
+          <h1>Panel Owner</h1>
+          <p className="panel-role-label">Panel del dueño</p>
+          <Link className="panel-guide-primary" href="/admin/instructivo">
+            INSTRUCTIVO: Owner-Consultor-Visitante
+          </Link>
+          <p className="panel-subtitle">
+            Control general de consultores, accesos privados y actividad del sistema.
+          </p>
+          <div className="panel-capabilities" aria-label="Capacidades del Panel Owner">
+            <span>Puede agregar y revocar consultores</span>
+            <span>Puede agregar y revocar PINs</span>
+            <span>Puede ver accesos activos globales</span>
+          </div>
         </div>
         <div className="panel-header-side">
           <div className="panel-user">
@@ -79,7 +92,13 @@ export default async function AdminPage() {
           <form action={createConsultantAction} className="panel-form admin-form-stacked">
             <label>Nombre<input name="full_name" required /></label>
             <label>Email<input name="email" type="email" required /></label>
-            <label>Contraseña temporal<input name="password" type="password" minLength={8} required /></label>
+            <PasswordField
+              autoComplete="new-password"
+              label="Contraseña temporal"
+              minLength={8}
+              name="password"
+              required
+            />
             <button className="panel-button" type="submit">Crear consultor</button>
           </form>
         </section>
@@ -94,10 +113,10 @@ export default async function AdminPage() {
           </div>
           <div className="panel-table-wrap">
             <table className="panel-table admin-table">
-              <thead><tr><th>Nombre</th><th>Email</th><th>Estado</th><th>Creado</th><th /></tr></thead>
+              <thead><tr><th>Nombre</th><th>Email</th><th>Estado</th><th>Creado</th><th>Acceso</th><th /></tr></thead>
               <tbody>
                 {consultants.length === 0 ? (
-                  <tr><td className="admin-empty" colSpan={5}>Todavía no hay consultores creados.</td></tr>
+                  <tr><td className="admin-empty" colSpan={6}>Todavía no hay consultores creados.</td></tr>
                 ) : consultants.map((consultant) => (
                   <tr key={consultant.id}>
                     <td><strong>{consultant.full_name || "Sin nombre"}</strong></td>
@@ -108,6 +127,12 @@ export default async function AdminPage() {
                       </span>
                     </td>
                     <td>{new Date(consultant.created_at).toLocaleDateString("es-UY")}</td>
+                    <td>
+                      <CopyButton
+                        label="Copiar link del Panel Consultor"
+                        path="/consultor"
+                      />
+                    </td>
                     <td>
                       <form action={toggleConsultantAction}>
                         <input name="consultant_id" type="hidden" value={consultant.id} />

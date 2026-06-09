@@ -31,23 +31,34 @@ export default async function ConsultantPage() {
   const { data: tokens = [] } =
     profile.role === "owner" ? await query : await query.eq("consultant_id", profile.id);
   const tokenRows = tokens ?? [];
+  const consultantName =
+    profile.role === "consultant" ? profile.full_name || profile.email : "Acceso operativo";
 
   return (
     <main className="panel-shell consultant-shell">
       <header className="panel-header admin-header">
         <div className="panel-heading">
-          <p className="eyebrow">Panel consultor</p>
-          <h1>Gestión de accesos</h1>
-          <p className="panel-subtitle">Generá links privados con PIN de 4 dígitos.</p>
+          <p className="eyebrow">Consultor</p>
+          <h1>Panel Consultor</h1>
+          <p className="panel-role-label">Panel de un consultor creado por el dueño</p>
+          <Link className="panel-guide-primary" href="/consultor/instructivo">
+            INSTRUCTIVO: Cómo generar y enviar accesos a inversores
+          </Link>
+          <p className="panel-subtitle">
+            Gestión de accesos privados mediante link único y PIN de 4 dígitos.
+          </p>
+          <div className="panel-capabilities is-consultant" aria-label="Capacidades del Panel Consultor">
+            <span>Puede agregar y revocar PINs</span>
+            <span>Puede ver los accesos activos que él mismo generó</span>
+          </div>
         </div>
         <div className="panel-header-side">
           <div className="panel-user">
-            <span>Sesión activa</span>
-            <strong>{profile.full_name || profile.email}</strong>
+            <span>Consultor activo</span>
+            <strong>{consultantName}</strong>
           </div>
           <nav>
             <Link className="admin-button-secondary" href="/">Ver presentación</Link>
-            {profile.role === "owner" && <Link href="/admin">Panel Owner</Link>}
             <form action={logoutAction}>
               <button className="admin-button-secondary" type="submit">Cerrar sesión</button>
             </form>
@@ -70,7 +81,7 @@ export default async function ConsultantPage() {
         <div className="panel-card-heading">
           <span className="panel-card-index">02</span>
           <div>
-            <h2>Accesos {profile.role === "owner" ? "generados" : "propios"}</h2>
+            <h2>Accesos propios</h2>
             <p>Links emitidos, vigencia, consumo y estado de cada invitación.</p>
           </div>
         </div>
