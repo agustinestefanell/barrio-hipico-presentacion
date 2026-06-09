@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { requirePresentationAccess } from "@/lib/auth/roles";
+
+export const dynamic = "force-dynamic";
 
 const scenarios = [
   {
@@ -18,7 +21,9 @@ const scenarios = [
   },
 ];
 
-export default function PoloLogisticoPage() {
+export default async function PoloLogisticoPage() {
+  await requirePresentationAccess();
+
   return (
     <main className="logistics-page">
       <header className="logistics-nav">

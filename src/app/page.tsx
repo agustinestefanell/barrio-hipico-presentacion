@@ -9,8 +9,13 @@ import LandBank from "@/components/LandBank";
 import Location from "@/components/Location";
 import Masterplan from "@/components/Masterplan";
 import Navigation from "@/components/Navigation";
+import { requirePresentationAccess } from "@/lib/auth/roles";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  await requirePresentationAccess();
+
   return (
     <>
       <Navigation />
