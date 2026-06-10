@@ -18,6 +18,7 @@ export default function Hero() {
           Barrio
           <em>Hípico</em>
         </h1>
+        <p className="hero-subtitle">Urbanización de lujo enfocada en los caballos</p>
         <p className="hero-lead">
           Salir de casa a caballo y cabalgar por todo el barrio a través de una red
           interna de equinovías.
