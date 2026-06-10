@@ -414,7 +414,7 @@ a {
 
 .cover-image-box {
   margin: 0 auto;
-  max-width: 960px;
+  width: min(1100px, 100%);
   overflow: hidden;
   border-radius: 6px;
   box-shadow: 0 4px 28px rgba(21, 59, 49, 0.14);

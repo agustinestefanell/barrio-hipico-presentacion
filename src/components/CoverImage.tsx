@@ -5,12 +5,11 @@ export default function CoverImage() {
     <section className="cover-image-section">
       <div className="cover-image-box">
         <Image
-          src="/images/relleno/Caratula.png"
-          alt="Barrio Hípico — Vista del proyecto"
+          src="/images/relleno/2a%20imagen.png"
+          alt="Barrio Hípico — Vista complementaria"
           width={1920}
           height={1080}
           style={{ width: "100%", height: "auto" }}
-          priority
         />
       </div>
     </section>
