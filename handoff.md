@@ -217,6 +217,16 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Riesgos/pendientes:** ninguno de código. Si se reemplaza `Caratula.png`, actualizar `Hero.tsx`.
 - **Estado final:** Closed.
 
+### 2026-06-10 — Reemplazo placeholder Masterplan por PNG real
+
+- **Diagnóstico:** la sección Masterplan mostraba un placeholder CSS (cuadrícula + rutas dibujadas) en `.plan-placeholder`. El usuario convirtió el masterplan real de PDF a PNG. Asset: `public/plans/masterplan.png`.
+- **Archivos tocados:** `src/components/Masterplan.tsx`, `src/app/globals.css`, `public/plans/masterplan.png` (nuevo), `public/plans/masterplan.pdf` (eliminado del repo).
+- **Cambios realizados:** `.plan-placeholder` reemplazado por `.plan-real-image` con `next/image` apuntando a `/plans/masterplan.png`. Nuevo estilo `.plan-real-image` con border-radius y sombra. PSDs y PDFs sin trackear no se incluyeron en el commit.
+- **Protección:** no se modificaron auth, admin, consultor, roles ni Supabase.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
+- **Commit:** `5335f59`.
+- **Estado final:** Closed.
+
 ### 2026-06-10 — Reemplazo imagen inferior repetida por "2a imagen"
 
 - **Diagnóstico:** `CoverImage.tsx` usaba `Caratula.png`, mismo asset que el Hero → imagen duplicada. El ancho del contenedor (960px) era menor al del hero-image-box (1100px).
