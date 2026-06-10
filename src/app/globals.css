@@ -200,9 +200,9 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 100svh;
-  padding: 16vh 7vw 8vh;
+  padding: 13vh 7vw 8vh;
   overflow: hidden;
   color: var(--paper);
   background: linear-gradient(160deg, rgba(9, 39, 31, 0.97) 0%, rgba(12, 48, 38, 0.92) 55%, rgba(40, 58, 40, 0.82) 100%), var(--forest-deep);
@@ -265,7 +265,7 @@ a {
 .hero-content {
   position: relative;
   z-index: 2;
-  width: min(960px, 88vw);
+  width: min(1200px, 92vw);
   text-align: center;
 }
 
@@ -286,17 +286,19 @@ a {
 .hero h1 {
   margin: 0;
   font-family: var(--serif);
-  font-size: var(--type-hero);
+  font-size: clamp(4rem, 8vw, 7.5rem);
   font-weight: 400;
-  letter-spacing: -0.08em;
-  line-height: 0.95;
+  letter-spacing: -0.06em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .hero h1 em {
-  display: block;
-  margin-left: 0;
+  display: inline;
+  margin-left: 0.2em;
   color: #d5bd8e;
   font-weight: 400;
+  font-style: italic;
 }
 
 .hero-subtitle {
@@ -311,8 +313,8 @@ a {
 }
 
 .hero-image-box {
-  margin: 40px auto 0;
-  width: min(860px, 100%);
+  margin: 36px auto 0;
+  width: min(1100px, 100%);
   overflow: hidden;
   border-radius: 5px;
   box-shadow: 0 8px 48px rgba(0, 0, 0, 0.6);
@@ -3562,7 +3564,12 @@ a {
   }
 
   .hero-content {
-    width: min(780px, 92vw);
+    width: 94vw;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 10vw, 4rem);
+    white-space: normal;
   }
 
   .hero-image-box {
