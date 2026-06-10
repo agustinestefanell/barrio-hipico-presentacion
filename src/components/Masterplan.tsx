@@ -44,22 +44,14 @@ export default function Masterplan() {
     >
       <div className="masterplan-grid">
         <div className="plan-column">
-          <div className="plan-placeholder">
-            <div className="plan-grid" aria-hidden="true">
-              {Array.from({ length: 24 }).map((_, index) => (
-                <span key={index} />
-              ))}
-            </div>
-            <div className="plan-route route-a" />
-            <div className="plan-route route-b" />
-            <div className="plan-label">
-              <span>Hipótesis representativa</span>
-              <strong>Red ecuestre + estructura de lotes</strong>
-              <small>Documento general disponible</small>
-            </div>
-            <span className="plan-key key-a">Acceso</span>
-            <span className="plan-key key-b">Área comercial</span>
-            <span className="plan-key key-c">Red ecuestre</span>
+          <div className="plan-real-image">
+            <Image
+              src="/plans/masterplan.png"
+              alt="Masterplan representativo Barrio Hípico"
+              width={1920}
+              height={1080}
+              style={{ width: "100%", height: "auto" }}
+            />
           </div>
         </div>
         <aside className="format-panel">

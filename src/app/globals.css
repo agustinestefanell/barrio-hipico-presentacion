@@ -644,6 +644,12 @@ a {
   min-width: 0;
 }
 
+.plan-real-image {
+  overflow: hidden;
+  border-radius: 6px;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.35);
+}
+
 .plan-placeholder {
   position: relative;
   min-height: 550px;
