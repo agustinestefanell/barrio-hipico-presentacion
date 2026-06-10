@@ -136,6 +136,6 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Cambios realizados:** solicitud pública con contraseña propia, perfil `pending`, aprobación Owner, estados `pending/active/inactive/deleted`, pantalla de espera, baja lógica con revocación y nuevos logs administrativos.
 - **Protección:** generar o revocar accesos continúa exigiendo `requireConsultantOrOwner()` y perfil operativo; pendientes/inactivos no acceden a funciones ni presentación.
 - **Resultado de build:** `npm run lint` y `npm run build` pasaron; el build incluye `/consultor/registro`.
-- **Commit:** pendiente.
+- **Commit:** `1980864`.
 - **Riesgos/pendientes:** ejecutar manualmente `supabase/migrations/002_consultant_approval_status.sql`, probar el ciclo completo contra Supabase remoto, verificar identidad antes de aprobar solicitudes, evaluar rate limit si el registro recibe abuso y actualizar el instructivo Owner anterior, que quedó fuera de los archivos autorizados de esta OE.
 - **Estado final:** Partial hasta aplicar migración remota y validar funcionalmente.
