@@ -31,10 +31,13 @@ src/
     access/[slug]/        # ingreso Visitante por PIN
     admin/                # Panel Owner
       instructivo/        # guía interna solo Owner
+    auth/
+      confirm/            # intercambio de código de recuperación Supabase
     consultor/            # Panel Consultor
       instructivo/        # guía operativa para Consultor u Owner
       registro/           # solicitud pública de cuenta Consultor
     login/                # login Owner/Consultor
+      reset-password/     # recuperación de contraseña por email
     polo-logistico/       # narrativa territorial separada
     auth-actions.ts       # logout
     globals.css           # presentación y paneles privados
@@ -65,6 +68,8 @@ proxy.ts                  # protección básica y refresh de sesión
 | `/` | Owner, Consultor o Visitante válido | `proxy.ts` y `requirePresentationAccess()` |
 | `/polo-logistico` | Owner, Consultor o Visitante válido | `proxy.ts` y `requirePresentationAccess()` |
 | `/login` | Pública | incluida en `PUBLIC_ROUTES` |
+| `/login/reset-password` | Pública | ruta estática; modo `?mode=set` requiere sesión activa de recovery |
+| `/auth/confirm` | Pública | incluida en `PUBLIC_ROUTES`; intercambia código de recovery y redirige |
 | `/access/[slug]` | Pública para validar PIN | incluida por prefijo `/access`; la verificación ocurre server-side |
 | `/consultor/registro` | Pública para solicitar cuenta Consultor | incluida en `PUBLIC_ROUTES`; crea perfil `pending` mediante Server Action |
 | `/admin` | Solo Owner | `requireOwner()` |
@@ -80,8 +85,8 @@ Los assets de `/_next/*`, `/images/*`, favicon y extensiones de imagen admitidas
 
 - Panel: `/admin`.
 - Identificación visual actual: **Panel Owner** / **Panel del dueño**.
-- Puede aprobar, activar, desactivar y borrar lógicamente consultores.
-- Borrar un consultor revoca sus accesos activos y conserva la trazabilidad.
+- Puede aprobar, activar, desactivar y borrar definitivamente consultores.
+- Borrar un consultor elimina definitivamente su usuario Auth, perfil, accesos y logs. El mismo email puede registrarse de nuevo desde cero.
 - La tabla Consultores consulta exclusivamente perfiles con `role=consultant` y excluye explícitamente el ID del Owner autenticado; el Owner no forma parte del listado ni recibe acciones de consultor.
 - Desde Panel Owner puede abrir o copiar `/consultor/registro` para iniciar una solicitud.
 - Puede crear accesos desde `/consultor`.
@@ -114,13 +119,14 @@ Las migraciones reales son:
 
 - `supabase/migrations/001_access_control.sql`: esquema base de acceso privado.
 - `supabase/migrations/002_consultant_approval_status.sql`: estados, aprobación y baja lógica de consultores.
+- `supabase/migrations/003_password_recovery_logs.sql`: amplía el constraint de `access_logs.event_type` con eventos de recuperación de contraseña.
 
 ### `profiles`
 
 - Relación uno a uno con `auth.users`.
 - Campos principales: `id`, `email`, `full_name`, `role`, `active`, `status`, `created_at`.
 - Roles persistidos: `owner`, `consultant`.
-- Estados de consultor: `pending`, `active`, `inactive`, `deleted`.
+- Estados de consultor en uso: `pending`, `active`, `inactive`. El estado `deleted` fue parte de la baja lógica anterior; la decisión actual es borrado definitivo.
 
 ### `access_tokens`
 
@@ -166,9 +172,10 @@ Las migraciones reales son:
 1. Refresca/consulta la sesión Supabase.
 2. Permite `/login` y `/access`.
 3. Permite `/consultor/registro` para solicitudes públicas.
-4. Permite usuarios autenticados; los guards server-side deciden su capacidad real.
-5. Permite cookie viewer válida únicamente para `/` y `/polo-logistico`.
-6. Redirige el resto a `/login`.
+4. Permite `/auth/confirm` para el intercambio de código de recovery.
+5. Permite usuarios autenticados; los guards server-side deciden su capacidad real.
+6. Permite cookie viewer válida únicamente para `/` y `/polo-logistico`.
+7. Redirige el resto a `/login`.
 
 La autorización fina no depende solo del proxy:
 

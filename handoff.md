@@ -147,6 +147,29 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Cambios realizados:** consulta dedicada con `role=consultant` y `id != owner.id`, exclusión del Owner desde la fuente, botón Crear consultor hacia `/consultor/registro`, copia del link y empty state explicativo.
 - **Protección:** las acciones administrativas continúan verificando server-side que el perfil objetivo tenga rol `consultant`.
 - **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
-- **Commit:** creado por esta OE; consultar el último commit del historial.
+- **Commit:** `e4a51f0`.
 - **Riesgos/pendientes:** probar visualmente el Panel Owner contra Supabase remoto después de aplicar la migración `002`.
+- **Estado final:** Closed.
+
+### 2026-06-09 — Gestión de consultores, mensajes de login y recuperación de contraseña
+
+- **Diagnóstico:** el login devolvía mensajes genéricos sin distinguir estado de la cuenta; no existía flujo de recuperación de contraseña; el Panel Owner no tenía herramientas para resolver problemas de acceso de consultores.
+- **Archivos tocados:** `src/app/login/actions.ts`, `src/app/login/LoginForm.tsx`, `src/app/login/reset-password/page.tsx` (nuevo), `src/app/login/reset-password/actions.ts` (nuevo), `src/app/auth/confirm/route.ts` (nuevo), `src/app/admin/actions.ts`, `src/app/admin/page.tsx`, `src/app/globals.css`, `proxy.ts`, `supabase/migrations/003_password_recovery_logs.sql` (nuevo).
+- **Cambios realizados:** mensajes de login específicos por estado (`pending`, `inactive`, `deleted`); link "¿Olvidaste tu contraseña?" en login; flujo completo de recovery por email vía Supabase; `/auth/confirm` para intercambio de código; Panel Owner con "Enviar recuperación", "Contraseña temporal" y diagnóstico expandible por consultor.
+- **Protección:** todas las acciones de administración verifican `requireOwner()`; no se exponen secretos; passwords no se almacenan.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
+- **Commit:** `18e1207`.
+- **Riesgos/pendientes:** configurar `NEXT_PUBLIC_SITE_URL` en Vercel; agregar Redirect URLs en Supabase Auth (`/auth/confirm`); aplicar migración `003`.
+- **Estado final:** Closed (requiere configuración Vercel/Supabase para activar recovery).
+
+### 2026-06-10 — Borrado definitivo de consultores
+
+- **Diagnóstico:** la baja lógica anterior (`status=deleted`) impedía que el mismo email se registrara nuevamente. El caso Santiago (consultor con problemas de acceso) requería un mecanismo de borrado limpio.
+- **Archivos tocados:** `src/app/admin/actions.ts`, `src/app/admin/page.tsx`, `DECISIONS.md`, `BarrioInglesPlans.md`, `PRODUCT_STATUS.md`, `handoff.md`.
+- **Cambios realizados:** `deleteConsultantAction` reemplazado con hard delete (elimina logs → auth.users con cascade a profiles → access_tokens). Confirmación en UI actualizada para aclarar el carácter definitivo. `sendPasswordRecoveryAction` ahora usa `headers().get("origin")` como fallback cuando `NEXT_PUBLIC_SITE_URL` no está configurada.
+- **Decisión reemplazada:** baja lógica con `status=deleted`. Ver `DECISIONS.md` para trazabilidad.
+- **Protección:** server-side verifica `role=consultant` y bloquea si el objetivo es el Owner. No se puede borrar al Owner.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
+- **Commit:** por crear.
+- **Riesgos/pendientes:** para el caso Santiago, ejecutar el SQL de borrado manual en Supabase antes de que el nuevo deploy esté activo, o usar el Panel Owner después del deploy.
 - **Estado final:** Closed.

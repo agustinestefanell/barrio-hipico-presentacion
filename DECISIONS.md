@@ -27,12 +27,13 @@
 - **Consecuencia:** `/consultor/registro` es público, mientras que generar links/PINs exige `active=true` y `status=active`.
 - **Límite:** los links/PINs creados por consultores aprobados quedan activos inmediatamente y no requieren aprobación individual.
 
-## 2026-06 — Borrar consultor significa baja lógica
+## 2026-06-10 — Borrar consultor es eliminación definitiva (decisión revisada)
 
-- **Decisión:** conservar perfil y logs al borrar un Consultor.
-- **Motivo:** preservar trazabilidad en un contexto de acceso privado y NDA.
-- **Consecuencia:** la baja marca `status=deleted`, desactiva el perfil, revoca sus accesos activos y registra `consultant_deleted`.
-- **Límite:** no se elimina físicamente el usuario Auth ni el historial en esta fase.
+- **Decisión revisada:** borrar un Consultor elimina definitiva y completamente su existencia en el sistema.
+- **Motivo:** necesidad de que el mismo email pueda registrarse nuevamente desde cero. La baja lógica anterior impedía el re-registro con el mismo email.
+- **Consecuencia:** se eliminan en orden seguro: logs relacionados al consultor y a sus tokens → auth.users (que en cascada elimina profiles → access_tokens). El Owner ve una confirmación que aclara el carácter definitivo de la acción.
+- **Decisión anterior (reemplazada):** la versión previa conservaba el perfil con `status=deleted` y revocaba accesos. Fue reemplazada por esta decisión el 2026-06-10.
+- **Límite:** el Owner no puede ser borrado. Las acciones de borrado verifican server-side que el objetivo tenga `role=consultant`.
 
 ## 2026-06 — Link único + PIN de 4 dígitos
 
@@ -76,6 +77,13 @@
 - **Decisión:** mantener seis documentos raíz de arquitectura, estado, decisiones, handoff, problemas y protocolo.
 - **Motivo:** evitar pérdida de contexto entre sesiones y Workers.
 - **Consecuencia:** futuras OEs deben actualizar documentación según `PromtsOperativos.md`.
+
+## 2026-06-10 — Recuperación de contraseña por email
+
+- **Decisión:** el flujo de recuperación de contraseña se hace completamente por email.
+- **Motivo:** no exponer contraseñas temporales, seguridad y UX estándar.
+- **Consecuencia:** `/login/reset-password` maneja dos estados (solicitar email / ingresar nueva contraseña). `/auth/confirm` intercambia el código de Supabase y redirecciona con `?mode=set`. El Owner puede enviar recuperación desde el Panel Owner.
+- **Requisito operativo:** `NEXT_PUBLIC_SITE_URL` debe estar configurada en Vercel. Supabase debe tener como Redirect URLs: `https://barrio-hipico-presentacion.vercel.app/auth/confirm` y `http://localhost:3000/auth/confirm`.
 
 ## Pendiente de decisión
 

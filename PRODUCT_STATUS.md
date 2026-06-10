@@ -31,23 +31,24 @@ Estados permitidos: `Closed`, `Partial`, `UI-only`, `Deferred`, `Broken`, `Needs
 | Área | Feature | Estado | Evidencia | Pendiente | Última OE / commit |
 |---|---|---|---|---|---|
 | Auth | Supabase Auth email/password | Closed | `login/actions.ts` usa `signInWithPassword` y perfil activo | Verificar Vercel fuera del repo | `ae78647` |
-| Auth | Registro controlado de consultores | Partial | `/consultor/registro` crea Auth user y perfil `pending` mediante Server Action | Aplicar migración `002`, probar remoto y evaluar rate limit si recibe abuso | esta OE |
-| Owner | Panel Owner | Partial | Query exclusiva `role=consultant` con exclusión explícita del Owner, botón Crear consultor, copia de registro, aprobación y baja segura | Aplicar migración `002` y probar acciones con Owner | esta OE |
+| Auth | Registro controlado de consultores | Closed | `/consultor/registro` crea Auth user y perfil `pending`; re-registro posible tras borrado definitivo | Evaluar rate limit si recibe abuso | `18e1207` |
+| Auth | Recuperación de contraseña | Closed | `/login/reset-password` + `/auth/confirm`; Owner puede enviar recovery desde Panel; requiere `NEXT_PUBLIC_SITE_URL` en Vercel | Configurar Redirect URLs en Supabase Auth | `18e1207` |
+| Owner | Panel Owner | Closed | Query exclusiva `role=consultant`, exclusión Owner, aprobación, desactivación, borrado definitivo, recuperación de contraseña, diagnóstico por consultor | Ninguno pendiente de código | `18e1207` |
 | Owner | Instructivo interno | Needs Review | `/admin/instructivo` protegido, pero aún describe alta manual con contraseña temporal | Actualizar en una OE autorizada | `c821a2c` |
 | Consultor | Panel Consultor | Partial | Activos operan; pendientes/inactivos reciben pantalla de estado | Aplicar migración `002` y probar todos los estados | esta OE |
-| Consultor | Aprobación Owner | Partial | Guards y acciones exigen `active + status=active` | Aplicar migración `002` en Supabase | esta OE |
-| Consultor | Baja segura | Partial | `deleted`, revocación de accesos activos y log `consultant_deleted` implementados | Aplicar migración `002` y prueba funcional | esta OE |
+| Consultor | Aprobación Owner | Closed | Guards y acciones exigen `active + status=active` | Ninguno | `18e1207` |
+| Consultor | Borrado definitivo | Closed | eliminación completa: logs → auth.users (cascade: profiles → access_tokens); el mismo email puede re-registrarse | Ninguno | `18e1207` |
 | Consultor | Instructivo operativo | Closed | `/consultor/instructivo` protegido con `requireConsultantOrOwner()` | Mantener contenido actualizado | esta OE |
 | Usabilidad | Ver/ocultar contraseñas | Closed | `PasswordField` reutilizado en login y creación de consultor | Mantener oculto por defecto | esta OE |
 | Usabilidad | Copiar link Panel Consultor | Closed | `CopyButton` usa el origen actual y `/consultor` | Requiere permiso de portapapeles del navegador | esta OE |
 | Visitante | Link + PIN | Closed | `/access/[slug]`, PIN server-side y redirect a `/` | Prueba periódica producción | `ae78647` |
 | Seguridad | Revocación | Closed | Owner revoca global; Consultor revoca propios | Ninguno identificado | `ae78647` |
-| Seguridad | Logs | Partial | nuevos eventos de registro, aprobación y baja versionados | Aplicar migración `002` | esta OE |
+| Seguridad | Logs | Closed | eventos de registro, aprobación, estado y recuperación de contraseña; logs eliminados en borrado definitivo | Ninguno | `18e1207` |
 | Seguridad | PIN hash + salt | Closed | `scryptSync`, salt aleatorio, columnas sin grant de lectura | Mantener | `ae78647` |
 | Seguridad | Bloqueo por intentos | Closed | 5 fallos, bloqueo temporal 15 minutos | Evaluar política futura | `ae78647` |
 | Seguridad | Cookie viewer | Closed | HMAC, httpOnly, secure producción, sameSite lax | Rotación de secret requiere invalidar sesiones | `ae78647` |
 | Seguridad | Protección de rutas | Closed | `proxy.ts` + guards server-side | Verificar al agregar rutas nuevas | `ae78647` |
-| DB | Migraciones Supabase | Partial | `001_access_control.sql` y `002_consultant_approval_status.sql` versionadas | Ejecutar `002` manualmente en Supabase SQL Editor | esta OE |
+| DB | Migraciones Supabase | Partial | tres migraciones versionadas | Ejecutar `002` y `003` manualmente en Supabase SQL Editor si aún no se aplicaron | `18e1207` |
 
 ## Infraestructura y documentación
 

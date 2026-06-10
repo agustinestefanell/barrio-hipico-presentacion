@@ -265,7 +265,7 @@ export default async function AdminPage() {
                           <input name="consultant_id" type="hidden" value={consultant.id} />
                           <ConfirmSubmitButton
                             className="table-action is-delete"
-                            message="¿Seguro que querés borrar este consultor? Se revocarán sus accesos activos."
+                            message="¿Seguro que querés borrar definitivamente este consultor? Se eliminarán su usuario, accesos y registros. Luego podrá registrarse de nuevo desde cero."
                           >
                             Borrar
                           </ConfirmSubmitButton>

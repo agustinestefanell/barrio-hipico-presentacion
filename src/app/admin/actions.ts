@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -79,46 +80,28 @@ export async function deleteConsultantAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: consultant } = await admin
     .from("profiles")
-    .select("id, role, status, email, full_name")
+    .select("id, role, email, full_name")
     .eq("id", consultantId)
     .maybeSingle();
-  if (!consultant || consultant.role !== "consultant" || consultant.status === "deleted") return;
+  if (!consultant || consultant.role !== "consultant") return;
 
-  const { data: activeTokens, error: tokenReadError } = await admin
+  // Fetch token IDs before cascade removes them
+  const { data: tokens } = await admin
     .from("access_tokens")
     .select("id")
-    .eq("consultant_id", consultantId)
-    .eq("active", true);
-  if (tokenReadError) return;
+    .eq("consultant_id", consultantId);
+  const tokenIds = (tokens ?? []).map((t: { id: string }) => t.id);
 
-  if ((activeTokens ?? []).length > 0) {
-    const { error: revokeError } = await admin
-      .from("access_tokens")
-      .update({ active: false, revoked_at: new Date().toISOString() })
-      .eq("consultant_id", consultantId)
-      .eq("active", true);
-    if (revokeError) return;
+  // Delete logs tied to this consultant's tokens
+  if (tokenIds.length > 0) {
+    await admin.from("access_logs").delete().in("access_token_id", tokenIds);
   }
+  // Delete logs tied to the consultant directly
+  await admin.from("access_logs").delete().eq("consultant_id", consultantId);
 
-  const { data: deletedProfile, error: profileError } = await admin
-    .from("profiles")
-    .update({ active: false, status: "deleted" })
-    .eq("id", consultantId)
-    .neq("status", "deleted")
-    .select("id")
-    .maybeSingle();
-  if (profileError || !deletedProfile) return;
+  // Deleting the auth user cascades: auth.users → profiles → access_tokens
+  await admin.auth.admin.deleteUser(consultantId);
 
-  await admin.from("access_logs").insert({
-    consultant_id: consultantId,
-    event_type: "consultant_deleted",
-    metadata: {
-      deleted_by: owner.id,
-      email: consultant.email,
-      full_name: consultant.full_name,
-      revoked_accesses: (activeTokens ?? []).length,
-    },
-  });
   revalidatePath("/admin");
   revalidatePath("/consultor");
 }
@@ -164,9 +147,10 @@ export async function sendPasswordRecoveryAction(formData: FormData) {
   if (!consultant || consultant.role !== "consultant" || consultant.status === "deleted") return;
 
   const supabase = await createClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  const redirectTo = siteUrl
-    ? `${siteUrl}/auth/confirm?next=/login/reset-password`
+  const headersList = await headers();
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? headersList.get("origin") ?? "";
+  const redirectTo = origin
+    ? `${origin}/auth/confirm?next=/login/reset-password`
     : undefined;
 
   const { error } = await supabase.auth.resetPasswordForEmail(consultant.email, { redirectTo });
