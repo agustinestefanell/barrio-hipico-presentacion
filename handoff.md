@@ -196,6 +196,18 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Riesgos/pendientes:** si la imagen se reemplaza en el futuro, usar el mismo nombre de archivo o actualizar la ruta en `globals.css`.
 - **Estado final:** Supersedida por la OE siguiente.
 
+### 2026-06-10 — Rediseño Hero con texto centrado e imagen triptych
+
+- **Diagnóstico:** el Hero tenía texto alineado a izquierda y la imagen triptych de referencia no estaba integrada. El primer impacto visual necesitaba centrar el contenido y mostrar la imagen compuesta debajo del título.
+- **Archivos tocados:** `src/components/Hero.tsx`, `src/app/globals.css`.
+- **Cambios realizados:** `hero-content` pasa a `text-align: center`, `width: min(960px, 88vw)`. `h1 em` pierde `margin-left`. `.hero-triptych` nuevo bloque con `next/image` apuntando a `/images/hero/hero-triptych.png` (max 860px, sombra, borde sutil). `.hero-actions` centrado con `justify-content: center`. Responsive mobile: triptych ocupa 100% del ancho.
+- **Asset requerido:** `public/images/hero/hero-triptych.png` — directorio creado, **archivo pendiente de copia manual**.
+- **Protección:** no se modificaron auth, admin, consultor, roles ni Supabase.
+- **Resultado de build:** `npm run build` pasó; TypeScript sin errores.
+- **Commit:** ver último commit del historial.
+- **Riesgos/pendientes:** hasta que se coloque `hero-triptych.png` en `public/images/hero/`, el bloque de imagen no renderizará. Copiar el PNG y commitear el asset.
+- **Estado final:** Partial — código listo, asset pendiente.
+
 ### 2026-06-10 — Carátula como box centrado apaisado (reemplazo de background)
 
 - **Diagnóstico:** `Caratula.png` quedaba como CSS background full-bleed del hero (modo fondo de pantalla). El Owner requirió que aparezca como imagen contenida, centrada y en formato apaisado.

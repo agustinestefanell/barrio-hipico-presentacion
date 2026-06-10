@@ -7,7 +7,7 @@ Estados permitidos: `Closed`, `Partial`, `UI-only`, `Deferred`, `Broken`, `Needs
 | Área | Feature | Estado | Evidencia | Pendiente | Última OE / commit |
 |---|---|---|---|---|---|
 | Acceso | Home protegida | Closed | `/` ejecuta `requirePresentationAccess()` y proxy bloquea acceso básico | Verificar producción tras cambios de env | `ae78647` |
-| Home | Hero | Closed | `Hero.tsx` gradiente verde oscuro puro; `CoverImage.tsx` muestra `Caratula.png` como box apaisado centrado (max 960px) entre Hero y CoreIdea; subtítulo en hero | Si se reemplaza la imagen, mismo nombre de archivo o actualizar `CoverImage.tsx` | `4b36fb1` |
+| Home | Hero | Partial | `Hero.tsx` texto centrado, gradiente verde oscuro; slot `.hero-triptych` apuntando a `/images/hero/hero-triptych.png` (asset pendiente de copia manual); `CoverImage.tsx` muestra `Caratula.png` entre Hero y CoreIdea | Copiar `hero-triptych.png` a `public/images/hero/` y commitear | ver último commit |
 | Home | Core Idea | Closed | `CoreIdea.tsx` montado | Ninguno identificado | `5b93876` |
 | Home | Masterplan | Closed | `Masterplan.tsx`, imágenes contain, cards y mapa | Preservar proporción en cambios | `5b93876` |
 | Home | Amenities | Closed | `EquestrianAmenities.tsx`, assets y placeholders | Revisar assets nuevos antes de reemplazar | `5b93876` |
