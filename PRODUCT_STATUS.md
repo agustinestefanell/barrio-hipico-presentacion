@@ -32,7 +32,7 @@ Estados permitidos: `Closed`, `Partial`, `UI-only`, `Deferred`, `Broken`, `Needs
 |---|---|---|---|---|---|
 | Auth | Supabase Auth email/password | Closed | `login/actions.ts` usa `signInWithPassword` y perfil activo | Verificar Vercel fuera del repo | `ae78647` |
 | Auth | Registro controlado de consultores | Partial | `/consultor/registro` crea Auth user y perfil `pending` mediante Server Action | Aplicar migración `002`, probar remoto y evaluar rate limit si recibe abuso | esta OE |
-| Owner | Panel Owner | Partial | Aprobación, activación, desactivación, baja segura y copia del link implementadas | Aplicar migración `002` y probar acciones con Owner | esta OE |
+| Owner | Panel Owner | Partial | Query exclusiva `role=consultant` con exclusión explícita del Owner, botón Crear consultor, copia de registro, aprobación y baja segura | Aplicar migración `002` y probar acciones con Owner | esta OE |
 | Owner | Instructivo interno | Needs Review | `/admin/instructivo` protegido, pero aún describe alta manual con contraseña temporal | Actualizar en una OE autorizada | `c821a2c` |
 | Consultor | Panel Consultor | Partial | Activos operan; pendientes/inactivos reciben pantalla de estado | Aplicar migración `002` y probar todos los estados | esta OE |
 | Consultor | Aprobación Owner | Partial | Guards y acciones exigen `active + status=active` | Aplicar migración `002` en Supabase | esta OE |

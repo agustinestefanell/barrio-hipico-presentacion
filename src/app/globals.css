@@ -3060,6 +3060,32 @@ a {
   min-width: 1050px;
 }
 
+.consultant-registration-actions {
+  display: flex;
+  margin-top: 18px;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.consultant-registration-actions .panel-button,
+.consultant-registration-actions .copy-link-button {
+  min-height: 42px;
+}
+
+.consultant-registration-actions .copy-link-button {
+  padding-inline: 16px;
+}
+
+.consultant-table .admin-empty strong,
+.consultant-table .admin-empty span {
+  display: block;
+}
+
+.consultant-table .admin-empty span {
+  margin-top: 7px;
+  font-size: var(--type-label);
+}
+
 .consultant-actions {
   display: flex;
   justify-content: flex-end;

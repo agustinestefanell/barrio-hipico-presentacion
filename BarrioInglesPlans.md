@@ -82,6 +82,8 @@ Los assets de `/_next/*`, `/images/*`, favicon y extensiones de imagen admitidas
 - Identificación visual actual: **Panel Owner** / **Panel del dueño**.
 - Puede aprobar, activar, desactivar y borrar lógicamente consultores.
 - Borrar un consultor revoca sus accesos activos y conserva la trazabilidad.
+- La tabla Consultores consulta exclusivamente perfiles con `role=consultant` y excluye explícitamente el ID del Owner autenticado; el Owner no forma parte del listado ni recibe acciones de consultor.
+- Desde Panel Owner puede abrir o copiar `/consultor/registro` para iniciar una solicitud.
 - Puede crear accesos desde `/consultor`.
 - Puede revocar cualquier acceso.
 - Puede ver accesos globales y logs.

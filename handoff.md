@@ -139,3 +139,14 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Commit:** `1980864`.
 - **Riesgos/pendientes:** ejecutar manualmente `supabase/migrations/002_consultant_approval_status.sql`, probar el ciclo completo contra Supabase remoto, verificar identidad antes de aprobar solicitudes, evaluar rate limit si el registro recibe abuso y actualizar el instructivo Owner anterior, que quedó fuera de los archivos autorizados de esta OE.
 - **Estado final:** Partial hasta aplicar migración remota y validar funcionalmente.
+
+### 2026-06-09 — Fix creación y listado de consultores en Panel Owner
+
+- **Diagnóstico:** la tabla local filtraba por rol después de consultar todos los perfiles, y no mostraba una acción clara para iniciar el nuevo flujo de autorregistro.
+- **Archivos tocados:** `src/app/admin/page.tsx`, `src/app/globals.css`, `BarrioInglesPlans.md`, `PRODUCT_STATUS.md`, `handoff.md`.
+- **Cambios realizados:** consulta dedicada con `role=consultant` y `id != owner.id`, exclusión del Owner desde la fuente, botón Crear consultor hacia `/consultor/registro`, copia del link y empty state explicativo.
+- **Protección:** las acciones administrativas continúan verificando server-side que el perfil objetivo tenga rol `consultant`.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
+- **Commit:** creado por esta OE; consultar el último commit del historial.
+- **Riesgos/pendientes:** probar visualmente el Panel Owner contra Supabase remoto después de aplicar la migración `002`.
+- **Estado final:** Closed.

@@ -49,9 +49,20 @@ function consultantStatusLabel(status: ConsultantStatus) {
 export default async function AdminPage() {
   const owner = await requireOwner();
   const admin = createAdminClient();
-  const [{ data: profiles = [] }, { data: tokens = [] }, { data: logs = [] }] =
+  const [
+    { data: profiles = [] },
+    { data: consultantProfiles = [] },
+    { data: tokens = [] },
+    { data: logs = [] },
+  ] =
     await Promise.all([
       admin.from("profiles").select("*").order("created_at", { ascending: false }),
+      admin
+        .from("profiles")
+        .select("*")
+        .eq("role", "consultant")
+        .neq("id", owner.id)
+        .order("created_at", { ascending: false }),
       admin.from("access_tokens").select("*").order("created_at", { ascending: false }),
       admin.from("access_logs").select("*").order("created_at", { ascending: false }).limit(50),
     ]);
@@ -61,8 +72,8 @@ export default async function AdminPage() {
   const logRows = logs ?? [];
   const profileNames = new Map(profileRows.map((profile) => [profile.id, profile.full_name || profile.email]));
   const tokenNames = new Map(tokenRows.map((token) => [token.id, token.viewer_name || "Invitado"]));
-  const consultants = profileRows.filter(
-    (profile) => profile.role === "consultant" && consultantStatus(profile) !== "deleted",
+  const consultants = (consultantProfiles ?? []).filter(
+    (profile) => consultantStatus(profile) !== "deleted",
   );
   const pendingConsultants = consultants.filter(
     (consultant) => consultantStatus(consultant) === "pending",
@@ -108,9 +119,19 @@ export default async function AdminPage() {
           <div>
             <h2>Consultores</h2>
             <p>
-              Solicitudes pendientes y usuarios delegados. Pendientes de aprobación:{" "}
+              Solicitudes pendientes y consultores delegados. Los consultores crean su cuenta y
+              quedan pendientes hasta aprobación del Owner. Pendientes de aprobación:{" "}
               <strong>{pendingConsultants}</strong>.
             </p>
+            <div className="consultant-registration-actions">
+              <Link className="panel-button" href="/consultor/registro">
+                Crear consultor
+              </Link>
+              <CopyButton
+                label="Copiar link de registro de consultor"
+                path="/consultor/registro"
+              />
+            </div>
           </div>
         </div>
         <div className="panel-table-wrap">
@@ -118,7 +139,12 @@ export default async function AdminPage() {
             <thead><tr><th>Nombre</th><th>Email</th><th>Estado</th><th>Creado</th><th>Acceso</th><th>Acciones</th></tr></thead>
             <tbody>
               {consultants.length === 0 ? (
-                <tr><td className="admin-empty" colSpan={6}>Todavía no hay consultores registrados.</td></tr>
+                <tr>
+                  <td className="admin-empty" colSpan={6}>
+                    <strong>Todavía no hay consultores registrados.</strong>
+                    <span>Compartí el link de registro o usá Crear consultor para iniciar una solicitud.</span>
+                  </td>
+                </tr>
               ) : consultants.map((consultant) => {
                 const status = consultantStatus(consultant);
 
