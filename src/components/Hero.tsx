@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Hero() {
@@ -19,10 +20,16 @@ export default function Hero() {
           <em>Hípico</em>
         </h1>
         <p className="hero-subtitle">Urbanización de lujo enfocada en los caballos</p>
-        <p className="hero-lead">
-          Salir de casa a caballo y cabalgar por todo el barrio a través de una red
-          interna de equinovías.
-        </p>
+        <div className="hero-triptych">
+          <Image
+            src="/images/hero/hero-triptych.png"
+            alt="Barrio Hípico — tres escenas"
+            width={1800}
+            height={600}
+            style={{ width: "100%", height: "auto" }}
+            priority
+          />
+        </div>
         <div className="hero-actions">
           <Link href="#concepto" className="button button-primary">
             Ver proyecto <span aria-hidden="true">↓</span>
