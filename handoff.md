@@ -194,4 +194,15 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
 - **Commit:** `d23313b` (código) + cierre de OE (imagen).
 - **Riesgos/pendientes:** si la imagen se reemplaza en el futuro, usar el mismo nombre de archivo o actualizar la ruta en `globals.css`.
+- **Estado final:** Supersedida por la OE siguiente.
+
+### 2026-06-10 — Carátula como box centrado apaisado (reemplazo de background)
+
+- **Diagnóstico:** `Caratula.png` quedaba como CSS background full-bleed del hero (modo fondo de pantalla). El Owner requirió que aparezca como imagen contenida, centrada y en formato apaisado.
+- **Archivos tocados:** `src/components/CoverImage.tsx` (nuevo), `src/app/page.tsx`, `src/app/globals.css`.
+- **Cambios realizados:** hero vuelve a gradiente puro sin imagen de fondo. Nuevo componente `CoverImage` con `next/image`, sección `.cover-image-section` con fondo ivory, box max-width 960px, border-radius y sombra; insertado entre `<Hero />` y `<CoreIdea />` en `page.tsx`.
+- **Protección:** no se modificaron auth, roles, accesos ni secciones de contenido existentes.
+- **Resultado de build:** `npm run build` pasó; TypeScript sin errores.
+- **Commit:** `4b36fb1`.
+- **Riesgos/pendientes:** si la imagen tiene proporciones muy distintas a 16:9, ajustar `.cover-image-box` con `aspect-ratio` explícito.
 - **Estado final:** Closed.
