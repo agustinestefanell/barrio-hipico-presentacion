@@ -170,8 +170,8 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Decisión reemplazada:** baja lógica con `status=deleted`. Ver `DECISIONS.md` para trazabilidad.
 - **Protección:** server-side verifica `role=consultant` y bloquea si el objetivo es el Owner. No se puede borrar al Owner.
 - **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
-- **Commit:** por crear.
-- **Riesgos/pendientes:** para el caso Santiago, ejecutar el SQL de borrado manual en Supabase antes de que el nuevo deploy esté activo, o usar el Panel Owner después del deploy.
+- **Commit:** `5c30adf`.
+- **Riesgos/pendientes:** para el caso Santiago, usar el botón Borrar del Panel Owner (hard delete disponible desde este commit).
 - **Estado final:** Closed.
 
 ### 2026-06-10 — Botón volver al Panel Owner desde registro de consultor
@@ -181,6 +181,17 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Cambios realizados:** `page.tsx` convertido a Server Component que llama `getCurrentProfile()` y pasa `isOwner` al formulario. `RegistrationForm.tsx` extraído como Client Component; muestra "Volver al Panel Owner" → `/admin` si `isOwner`, "Volver al login" en caso contrario.
 - **Protección:** la detección de Owner ocurre server-side; no se expone lógica de rol al cliente. La lógica de registro no fue modificada.
 - **Resultado de build:** `npm run lint` y `npm run build` pasaron; `/consultor/registro` pasó de estático a dinámico (correcto, ahora lee sesión).
-- **Commit:** por crear.
+- **Commit:** `7e7959b`.
 - **Riesgos/pendientes:** ninguno identificado.
+- **Estado final:** Closed.
+
+### 2026-06-10 — Imagen de carátula en hero principal
+
+- **Diagnóstico:** el hero usaba gradientes CSS puros sin imagen real. Se proveyó `Caratula.png` como imagen de marca para el encabezado principal.
+- **Archivos tocados:** `src/components/Hero.tsx`, `src/app/globals.css`, `public/images/relleno/Caratula.png` (asset nuevo).
+- **Cambios realizados:** fondo del hero actualizado a `url('/images/relleno/Caratula.png') center / cover no-repeat` con gradiente verde oscuro encima (izquierda opaco → derecha translúcido). Agregada línea `.hero-subtitle` con "Urbanización de lujo enfocada en los caballos" entre el h1 y el hero-lead. Eliminada la cuadrícula de líneas sutiles (repeating-linear-gradient) reemplazada por la textura de la imagen.
+- **Protección:** no se modificaron secciones internas, mapas, auth ni lógica de acceso.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
+- **Commit:** `d23313b` (código) + cierre de OE (imagen).
+- **Riesgos/pendientes:** si la imagen se reemplaza en el futuro, usar el mismo nombre de archivo o actualizar la ruta en `globals.css`.
 - **Estado final:** Closed.

@@ -7,7 +7,7 @@ Estados permitidos: `Closed`, `Partial`, `UI-only`, `Deferred`, `Broken`, `Needs
 | Área | Feature | Estado | Evidencia | Pendiente | Última OE / commit |
 |---|---|---|---|---|---|
 | Acceso | Home protegida | Closed | `/` ejecuta `requirePresentationAccess()` y proxy bloquea acceso básico | Verificar producción tras cambios de env | `ae78647` |
-| Home | Hero | Closed | `Hero.tsx` montado en `page.tsx` | Revisión visual futura | `5b93876` |
+| Home | Hero | Closed | `Hero.tsx` con `Caratula.png` como fondo full-bleed, gradiente verde oscuro superpuesto, subtítulo "Urbanización de lujo enfocada en los caballos" | Actualizar ruta CSS si se reemplaza la imagen | `d23313b` |
 | Home | Core Idea | Closed | `CoreIdea.tsx` montado | Ninguno identificado | `5b93876` |
 | Home | Masterplan | Closed | `Masterplan.tsx`, imágenes contain, cards y mapa | Preservar proporción en cambios | `5b93876` |
 | Home | Amenities | Closed | `EquestrianAmenities.tsx`, assets y placeholders | Revisar assets nuevos antes de reemplazar | `5b93876` |
