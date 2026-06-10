@@ -1,6 +1,7 @@
 import BusinessUnits from "@/components/BusinessUnits";
 import Closing from "@/components/Closing";
 import CoreIdea from "@/components/CoreIdea";
+import CoverImage from "@/components/CoverImage";
 import EquestrianExperience from "@/components/EquestrianExperience";
 import EquestrianAmenities from "@/components/EquestrianAmenities";
 import Hero from "@/components/Hero";
@@ -21,6 +22,7 @@ export default async function Home() {
       <Navigation />
       <main>
         <Hero />
+        <CoverImage />
         <CoreIdea />
         <Masterplan />
         <EquestrianAmenities />

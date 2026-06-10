@@ -202,9 +202,7 @@ a {
   padding: 16vh 7vw 8vh;
   overflow: hidden;
   color: var(--paper);
-  background:
-    linear-gradient(115deg, rgba(9, 39, 31, 0.93) 0%, rgba(15, 55, 43, 0.86) 42%, rgba(61, 73, 50, 0.62) 100%),
-    url('/images/relleno/Caratula.png') center / cover no-repeat;
+  background: linear-gradient(115deg, rgba(9, 39, 31, 0.93) 0%, rgba(15, 55, 43, 0.88) 48%, rgba(61, 73, 50, 0.78) 100%), var(--forest-deep);
 }
 
 .hero::before {
@@ -391,6 +389,25 @@ a {
   letter-spacing: 0;
   line-height: 1.25;
   text-transform: none;
+}
+
+.cover-image-section {
+  padding: 6vh 7vw 7vh;
+  background: var(--ivory);
+}
+
+.cover-image-box {
+  margin: 0 auto;
+  max-width: 960px;
+  overflow: hidden;
+  border-radius: 6px;
+  box-shadow: 0 4px 28px rgba(21, 59, 49, 0.14);
+}
+
+.cover-image-box img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .slide-section {
