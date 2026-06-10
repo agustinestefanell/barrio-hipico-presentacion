@@ -40,11 +40,24 @@ export async function registerConsultantAction(
   });
 
   if (error || !data.user) {
+    console.error("[consultant_registration_auth_error]", error?.message, error?.status);
+    const msg = error?.message ?? "";
+    if (msg.includes("already registered") || msg.includes("already been registered") || msg.includes("duplicate")) {
+      return { error: "Este email ya está registrado.", success: false };
+    }
+    if (msg.includes("password") || msg.includes("Password")) {
+      return { error: "La contraseña no cumple los requisitos mínimos.", success: false };
+    }
+    if (msg.includes("service_role") || msg.includes("invalid API key") || msg.includes("JWT")) {
+      return { error: "Error de configuración del servidor. Contactá al administrador.", success: false };
+    }
     return {
-      error: "No se pudo enviar la solicitud. Revisá los datos e intentá nuevamente.",
+      error: "No se pudo crear la cuenta. Revisá los datos e intentá nuevamente.",
       success: false,
     };
   }
+
+  console.log("[consultant_registration_start]", { email });
 
   const { error: profileError } = await admin.from("profiles").insert({
     id: data.user.id,
@@ -56,8 +69,13 @@ export async function registerConsultantAction(
   });
 
   if (profileError) {
+    console.error("[consultant_registration_profile_error]", profileError.message, profileError.code);
     await admin.auth.admin.deleteUser(data.user.id);
-    return { error: "No se pudo enviar la solicitud. Intentá nuevamente.", success: false };
+    const msg = profileError.message ?? "";
+    if (msg.includes("status") || msg.includes("column")) {
+      return { error: "Error de base de datos: falta ejecutar una migración. Contactá al administrador.", success: false };
+    }
+    return { error: "No se pudo registrar el perfil. Intentá nuevamente.", success: false };
   }
 
   await admin.from("access_logs").insert({
@@ -66,5 +84,6 @@ export async function registerConsultantAction(
     metadata: { email, full_name: fullName },
   });
 
+  console.log("[consultant_registration_success]", { email });
   return { error: "", success: true };
 }
