@@ -23,7 +23,9 @@ export async function loginAction(
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error || !data.user) return { error: "Credenciales inválidas o acceso deshabilitado." };
+  if (error || !data.user) {
+    return { error: "Email o contraseña incorrectos." };
+  }
 
   const admin = createAdminClient();
   const { data: profile } = await admin
@@ -34,7 +36,17 @@ export async function loginAction(
 
   if (!profile || profile.status === "deleted") {
     await supabase.auth.signOut();
-    return { error: "Credenciales inválidas o acceso deshabilitado." };
+    return { error: "Esta cuenta ya no tiene acceso al sistema." };
+  }
+
+  if (profile.status === "pending") {
+    await supabase.auth.signOut();
+    return { error: "Tu cuenta está pendiente de aprobación del Owner." };
+  }
+
+  if (profile.status === "inactive" || (!profile.active && profile.status !== "active")) {
+    await supabase.auth.signOut();
+    return { error: "Tu cuenta está desactivada. Contactá al Owner." };
   }
 
   if (profile.role === "owner" && profile.active && (!profile.status || profile.status === "active")) {

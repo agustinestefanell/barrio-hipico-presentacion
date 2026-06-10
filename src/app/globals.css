@@ -3106,6 +3106,76 @@ a {
   border-color: rgba(139, 73, 51, 0.35);
 }
 
+.table-action.is-recovery {
+  color: #3a5fa0;
+  border-color: rgba(58, 95, 160, 0.3);
+}
+
+.consultant-diag {
+  margin-top: 6px;
+}
+
+.consultant-diag summary {
+  font-size: var(--type-label);
+  color: var(--olive);
+  cursor: pointer;
+  user-select: none;
+  letter-spacing: 0.06em;
+}
+
+.consultant-diag ul {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  list-style: none;
+  font-size: var(--type-label);
+  background: rgba(21, 59, 49, 0.05);
+  border-radius: 5px;
+  line-height: 1.9;
+}
+
+.temp-password-details {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.temp-password-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.temp-password-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.temp-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0 4px;
+}
+
+.temp-password-input {
+  padding: 7px 10px;
+  font-size: var(--type-label);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: white;
+  width: 160px;
+}
+
+.login-forgot-link {
+  text-align: center;
+  margin-top: -6px;
+}
+
+.login-forgot-link a {
+  font-size: var(--type-label);
+  color: var(--olive);
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .copy-link-button {
   min-height: 36px;
   padding: 7px 10px;

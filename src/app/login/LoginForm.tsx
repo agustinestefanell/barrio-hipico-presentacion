@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import PasswordField from "@/components/PasswordField";
 import { loginAction, type LoginState } from "./actions";
@@ -25,6 +26,9 @@ export default function LoginForm() {
       <button className="access-button" type="submit" disabled={pending}>
         {pending ? "Ingresando..." : "Ingresar"}
       </button>
+      <div className="login-forgot-link">
+        <Link href="/login/reset-password">¿Olvidaste tu contraseña?</Link>
+      </div>
     </form>
   );
 }

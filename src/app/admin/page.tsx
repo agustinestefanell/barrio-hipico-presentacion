@@ -8,7 +8,9 @@ import {
   approveConsultantAction,
   deleteConsultantAction,
   revokeAnyAccessAction,
+  sendPasswordRecoveryAction,
   setConsultantStatusAction,
+  setTempPasswordAction,
 } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +48,19 @@ function consultantStatusLabel(status: ConsultantStatus) {
   return "Borrado";
 }
 
+function buildConsultantDiagnostics(tokenRows: Array<{ consultant_id: string; active: boolean; revoked_at: string | null; expires_at: string }>) {
+  const cutoff = new Date().getTime();
+  const activeTokens = new Map<string, number>();
+  const totalTokens = new Map<string, number>();
+  for (const token of tokenRows) {
+    totalTokens.set(token.consultant_id, (totalTokens.get(token.consultant_id) ?? 0) + 1);
+    if (token.active && !token.revoked_at && new Date(token.expires_at).getTime() > cutoff) {
+      activeTokens.set(token.consultant_id, (activeTokens.get(token.consultant_id) ?? 0) + 1);
+    }
+  }
+  return { activeTokens, totalTokens };
+}
+
 export default async function AdminPage() {
   const owner = await requireOwner();
   const admin = createAdminClient();
@@ -72,6 +87,17 @@ export default async function AdminPage() {
   const logRows = logs ?? [];
   const profileNames = new Map(profileRows.map((profile) => [profile.id, profile.full_name || profile.email]));
   const tokenNames = new Map(tokenRows.map((token) => [token.id, token.viewer_name || "Invitado"]));
+
+  // Diagnostics derived from existing data
+  const { activeTokens: consultantActiveTokens, totalTokens: consultantTotalTokens } =
+    buildConsultantDiagnostics(tokenRows);
+  const consultantLastLog = new Map<string, string>();
+  for (const log of logRows) {
+    if (log.consultant_id && !consultantLastLog.has(log.consultant_id)) {
+      consultantLastLog.set(log.consultant_id, log.event_type);
+    }
+  }
+
   const consultants = (consultantProfiles ?? []).filter(
     (profile) => consultantStatus(profile) !== "deleted",
   );
@@ -136,7 +162,16 @@ export default async function AdminPage() {
         </div>
         <div className="panel-table-wrap">
           <table className="panel-table admin-table consultant-table">
-            <thead><tr><th>Nombre</th><th>Email</th><th>Estado</th><th>Creado</th><th>Acceso</th><th>Acciones</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Estado</th>
+                <th>Creado</th>
+                <th>Acceso</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
             <tbody>
               {consultants.length === 0 ? (
                 <tr>
@@ -147,6 +182,9 @@ export default async function AdminPage() {
                 </tr>
               ) : consultants.map((consultant) => {
                 const status = consultantStatus(consultant);
+                const activeCount = consultantActiveTokens.get(consultant.id) ?? 0;
+                const totalCount = consultantTotalTokens.get(consultant.id) ?? 0;
+                const lastLog = consultantLastLog.get(consultant.id);
 
                 return (
                   <tr key={consultant.id}>
@@ -156,6 +194,17 @@ export default async function AdminPage() {
                       <span className={`admin-badge is-${status}`}>
                         {consultantStatusLabel(status)}
                       </span>
+                      <details className="consultant-diag">
+                        <summary>Diagnóstico</summary>
+                        <ul>
+                          <li>role: {consultant.role}</li>
+                          <li>status: {consultant.status ?? "—"}</li>
+                          <li>active: {String(consultant.active)}</li>
+                          <li>accesos activos: {activeCount}</li>
+                          <li>accesos totales: {totalCount}</li>
+                          <li>último evento: {lastLog ?? "sin logs"}</li>
+                        </ul>
+                      </details>
                     </td>
                     <td>{new Date(consultant.created_at).toLocaleDateString("es-UY")}</td>
                     <td>
@@ -185,6 +234,33 @@ export default async function AdminPage() {
                             </button>
                           </form>
                         )}
+                        <form action={sendPasswordRecoveryAction}>
+                          <input name="consultant_id" type="hidden" value={consultant.id} />
+                          <button className="table-action is-recovery" type="submit">
+                            Enviar recuperación
+                          </button>
+                        </form>
+                        <details className="temp-password-details">
+                          <summary className="table-action">Contraseña temporal</summary>
+                          <form action={setTempPasswordAction} className="temp-password-form">
+                            <input name="consultant_id" type="hidden" value={consultant.id} />
+                            <input
+                              autoComplete="new-password"
+                              className="temp-password-input"
+                              minLength={8}
+                              name="temp_password"
+                              placeholder="Mín. 8 caracteres"
+                              required
+                              type="password"
+                            />
+                            <ConfirmSubmitButton
+                              className="table-action is-approve"
+                              message={`¿Confirmás que querés cambiar la contraseña de ${consultant.full_name || consultant.email}? Comunicásela por un canal seguro.`}
+                            >
+                              Confirmar
+                            </ConfirmSubmitButton>
+                          </form>
+                        </details>
                         <form action={deleteConsultantAction}>
                           <input name="consultant_id" type="hidden" value={consultant.id} />
                           <ConfirmSubmitButton

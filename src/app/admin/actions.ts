@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 export async function approveConsultantAction(formData: FormData) {
   const owner = await requireOwner();
@@ -147,4 +148,68 @@ export async function revokeAnyAccessAction(formData: FormData) {
   });
   revalidatePath("/admin");
   revalidatePath("/consultor");
+}
+
+export async function sendPasswordRecoveryAction(formData: FormData) {
+  const owner = await requireOwner();
+  const consultantId = String(formData.get("consultant_id") ?? "");
+  if (!consultantId || consultantId === owner.id) return;
+
+  const admin = createAdminClient();
+  const { data: consultant } = await admin
+    .from("profiles")
+    .select("id, role, email, status")
+    .eq("id", consultantId)
+    .maybeSingle();
+  if (!consultant || consultant.role !== "consultant" || consultant.status === "deleted") return;
+
+  const supabase = await createClient();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const redirectTo = siteUrl
+    ? `${siteUrl}/auth/confirm?next=/login/reset-password`
+    : undefined;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(consultant.email, { redirectTo });
+  if (error) {
+    console.error("[send_password_recovery_error]", error.message);
+    return;
+  }
+
+  await admin.from("access_logs").insert({
+    consultant_id: consultantId,
+    event_type: "consultant_password_recovery_sent",
+    metadata: { sent_by: owner.id, email: consultant.email },
+  });
+  revalidatePath("/admin");
+}
+
+export async function setTempPasswordAction(formData: FormData) {
+  const owner = await requireOwner();
+  const consultantId = String(formData.get("consultant_id") ?? "");
+  const tempPassword = String(formData.get("temp_password") ?? "");
+  if (!consultantId || consultantId === owner.id) return;
+  if (tempPassword.length < 8) return;
+
+  const admin = createAdminClient();
+  const { data: consultant } = await admin
+    .from("profiles")
+    .select("id, role, status")
+    .eq("id", consultantId)
+    .maybeSingle();
+  if (!consultant || consultant.role !== "consultant" || consultant.status === "deleted") return;
+
+  const { error } = await admin.auth.admin.updateUserById(consultantId, {
+    password: tempPassword,
+  });
+  if (error) {
+    console.error("[set_temp_password_error]", error.message);
+    return;
+  }
+
+  await admin.from("access_logs").insert({
+    consultant_id: consultantId,
+    event_type: "consultant_temp_password_set",
+    metadata: { set_by: owner.id },
+  });
+  revalidatePath("/admin");
 }

@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { verifyViewerCookieValue, VIEWER_COOKIE_NAME } from "@/lib/auth/viewer-cookie";
 
-const PUBLIC_ROUTES = ["/login", "/access", "/consultor/registro"];
+const PUBLIC_ROUTES = ["/login", "/access", "/consultor/registro", "/auth/confirm"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
