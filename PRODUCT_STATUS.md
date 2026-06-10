@@ -7,7 +7,7 @@ Estados permitidos: `Closed`, `Partial`, `UI-only`, `Deferred`, `Broken`, `Needs
 | Área | Feature | Estado | Evidencia | Pendiente | Última OE / commit |
 |---|---|---|---|---|---|
 | Acceso | Home protegida | Closed | `/` ejecuta `requirePresentationAccess()` y proxy bloquea acceso básico | Verificar producción tras cambios de env | `ae78647` |
-| Home | Hero | Closed | `Hero.tsx` centrado (flex-column + align-items:center), `.hero-image-box` con `Caratula.png` (/images/relleno/); `CoverImage.tsx` mantiene segunda aparición de la imagen entre Hero y CoreIdea | Si se reemplaza Caratula.png, actualizar Hero.tsx y CoverImage.tsx | `c0e9cbc` |
+| Home | Hero | Closed | `Hero.tsx` centrado; bloque `min(1200px,92vw)`; título `clamp(4rem,8vw,7.5rem)` una línea (nowrap + em inline); imagen `min(1100px,100%)`; contenido posicionado en `flex-start` con `13vh` top | Si se reemplaza Caratula.png, actualizar `Hero.tsx` y `CoverImage.tsx` | `fa6c5ad` |
 | Home | Core Idea | Closed | `CoreIdea.tsx` montado | Ninguno identificado | `5b93876` |
 | Home | Masterplan | Closed | `Masterplan.tsx`, imágenes contain, cards y mapa | Preservar proporción en cambios | `5b93876` |
 | Home | Amenities | Closed | `EquestrianAmenities.tsx`, assets y placeholders | Revisar assets nuevos antes de reemplazar | `5b93876` |

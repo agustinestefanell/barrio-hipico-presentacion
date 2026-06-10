@@ -196,6 +196,16 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Riesgos/pendientes:** si la imagen se reemplaza en el futuro, usar el mismo nombre de archivo o actualizar la ruta en `globals.css`.
 - **Estado final:** Supersedida por la OE siguiente.
 
+### 2026-06-10 — Ajuste fino Hero: escala, espacio vertical y título en una línea
+
+- **Diagnóstico:** bloque central demasiado pequeño (`min(960px,88vw)`); `justify-content:center` generaba demasiado aire entre nav y contenido; `h1 em { display:block }` partía "Barrio Hípico" en dos líneas; imagen limitada a 860px.
+- **Archivos tocados:** `src/app/globals.css`.
+- **Cambios realizados:** `.hero` pasa a `justify-content:flex-start; padding:13vh 7vw 8vh` (contenido sube). `.hero-content` ancho `min(1200px,92vw)`. `.hero h1` font-size `clamp(4rem,8vw,7.5rem)` + `white-space:nowrap`. `.hero h1 em` pasa a `display:inline` + `margin-left:0.2em` → "Barrio Hípico" en una sola línea. `.hero-image-box` ancho `min(1100px,100%)`. Mobile: `white-space:normal`, font-size reducido, contenedor `94vw`.
+- **Protección:** no se modificaron auth, admin, consultor, roles ni Supabase.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
+- **Commit:** `fa6c5ad`.
+- **Estado final:** Closed.
+
 ### 2026-06-10 — Rediseño Hero centrado con imagen Caratula.png
 
 - **Diagnóstico:** `hero-content` tenía `align-self: center` dentro de un flex-row, lo que centraba verticalmente pero NO horizontalmente — el bloque quedaba a la izquierda. La imagen apuntaba a `/images/hero/hero-triptych.png` (inexistente). Asset real: `public/images/relleno/Caratula.png`.
