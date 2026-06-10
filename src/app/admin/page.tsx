@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/auth-actions";
+import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 import CopyButton from "@/components/CopyButton";
-import PasswordField from "@/components/PasswordField";
 import { requireOwner } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  createConsultantAction,
+  approveConsultantAction,
+  deleteConsultantAction,
   revokeAnyAccessAction,
-  toggleConsultantAction,
+  setConsultantStatusAction,
 } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +30,22 @@ function statusClass(status: string) {
   return `admin-badge is-${status.toLowerCase()}`;
 }
 
+type ConsultantStatus = "pending" | "active" | "inactive" | "deleted";
+
+function consultantStatus(consultant: { active: boolean; status?: string }): ConsultantStatus {
+  if (["pending", "active", "inactive", "deleted"].includes(consultant.status ?? "")) {
+    return consultant.status as ConsultantStatus;
+  }
+  return consultant.active ? "active" : "inactive";
+}
+
+function consultantStatusLabel(status: ConsultantStatus) {
+  if (status === "pending") return "Pendiente";
+  if (status === "active") return "Activo";
+  if (status === "inactive") return "Inactivo";
+  return "Borrado";
+}
+
 export default async function AdminPage() {
   const owner = await requireOwner();
   const admin = createAdminClient();
@@ -44,7 +61,12 @@ export default async function AdminPage() {
   const logRows = logs ?? [];
   const profileNames = new Map(profileRows.map((profile) => [profile.id, profile.full_name || profile.email]));
   const tokenNames = new Map(tokenRows.map((token) => [token.id, token.viewer_name || "Invitado"]));
-  const consultants = profileRows.filter((profile) => profile.role === "consultant");
+  const consultants = profileRows.filter(
+    (profile) => profile.role === "consultant" && consultantStatus(profile) !== "deleted",
+  );
+  const pendingConsultants = consultants.filter(
+    (consultant) => consultantStatus(consultant) === "pending",
+  ).length;
 
   return (
     <main className="panel-shell admin-shell">
@@ -60,7 +82,7 @@ export default async function AdminPage() {
             Control general de consultores, accesos privados y actividad del sistema.
           </p>
           <div className="panel-capabilities" aria-label="Capacidades del Panel Owner">
-            <span>Puede agregar y revocar consultores</span>
+            <span>Puede aprobar, desactivar y borrar consultores</span>
             <span>Puede agregar y revocar PINs</span>
             <span>Puede ver accesos activos globales</span>
           </div>
@@ -80,50 +102,33 @@ export default async function AdminPage() {
         </div>
       </header>
 
-      <div className="admin-grid">
-        <section className="panel-card admin-card">
-          <div className="panel-card-heading">
-            <span className="panel-card-index">01</span>
-            <div>
-              <h2>Crear consultor</h2>
-              <p>Generá un usuario delegado para emitir accesos privados.</p>
-            </div>
+      <section className="panel-card admin-card admin-card-wide">
+        <div className="panel-card-heading">
+          <span className="panel-card-index">01</span>
+          <div>
+            <h2>Consultores</h2>
+            <p>
+              Solicitudes pendientes y usuarios delegados. Pendientes de aprobación:{" "}
+              <strong>{pendingConsultants}</strong>.
+            </p>
           </div>
-          <form action={createConsultantAction} className="panel-form admin-form-stacked">
-            <label>Nombre<input name="full_name" required /></label>
-            <label>Email<input name="email" type="email" required /></label>
-            <PasswordField
-              autoComplete="new-password"
-              label="Contraseña temporal"
-              minLength={8}
-              name="password"
-              required
-            />
-            <button className="panel-button" type="submit">Crear consultor</button>
-          </form>
-        </section>
+        </div>
+        <div className="panel-table-wrap">
+          <table className="panel-table admin-table consultant-table">
+            <thead><tr><th>Nombre</th><th>Email</th><th>Estado</th><th>Creado</th><th>Acceso</th><th>Acciones</th></tr></thead>
+            <tbody>
+              {consultants.length === 0 ? (
+                <tr><td className="admin-empty" colSpan={6}>Todavía no hay consultores registrados.</td></tr>
+              ) : consultants.map((consultant) => {
+                const status = consultantStatus(consultant);
 
-        <section className="panel-card admin-card">
-          <div className="panel-card-heading">
-            <span className="panel-card-index">02</span>
-            <div>
-              <h2>Consultores</h2>
-              <p>Usuarios delegados habilitados para generar invitaciones.</p>
-            </div>
-          </div>
-          <div className="panel-table-wrap">
-            <table className="panel-table admin-table">
-              <thead><tr><th>Nombre</th><th>Email</th><th>Estado</th><th>Creado</th><th>Acceso</th><th /></tr></thead>
-              <tbody>
-                {consultants.length === 0 ? (
-                  <tr><td className="admin-empty" colSpan={6}>Todavía no hay consultores creados.</td></tr>
-                ) : consultants.map((consultant) => (
+                return (
                   <tr key={consultant.id}>
                     <td><strong>{consultant.full_name || "Sin nombre"}</strong></td>
                     <td>{consultant.email}</td>
                     <td>
-                      <span className={consultant.active ? "admin-badge is-activo" : "admin-badge is-inactivo"}>
-                        {consultant.active ? "Activo" : "Inactivo"}
+                      <span className={`admin-badge is-${status}`}>
+                        {consultantStatusLabel(status)}
                       </span>
                     </td>
                     <td>{new Date(consultant.created_at).toLocaleDateString("es-UY")}</td>
@@ -134,25 +139,48 @@ export default async function AdminPage() {
                       />
                     </td>
                     <td>
-                      <form action={toggleConsultantAction}>
-                        <input name="consultant_id" type="hidden" value={consultant.id} />
-                        <input name="next_active" type="hidden" value={String(!consultant.active)} />
-                        <button className="table-action" type="submit">
-                          {consultant.active ? "Desactivar" : "Activar"}
-                        </button>
-                      </form>
+                      <div className="consultant-actions">
+                        {status === "pending" && (
+                          <form action={approveConsultantAction}>
+                            <input name="consultant_id" type="hidden" value={consultant.id} />
+                            <button className="table-action is-approve" type="submit">Aprobar</button>
+                          </form>
+                        )}
+                        {(status === "active" || status === "inactive") && (
+                          <form action={setConsultantStatusAction}>
+                            <input name="consultant_id" type="hidden" value={consultant.id} />
+                            <input
+                              name="next_status"
+                              type="hidden"
+                              value={status === "active" ? "inactive" : "active"}
+                            />
+                            <button className="table-action" type="submit">
+                              {status === "active" ? "Desactivar" : "Reactivar"}
+                            </button>
+                          </form>
+                        )}
+                        <form action={deleteConsultantAction}>
+                          <input name="consultant_id" type="hidden" value={consultant.id} />
+                          <ConfirmSubmitButton
+                            className="table-action is-delete"
+                            message="¿Seguro que querés borrar este consultor? Se revocarán sus accesos activos."
+                          >
+                            Borrar
+                          </ConfirmSubmitButton>
+                        </form>
+                      </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className="panel-card admin-card admin-card-wide">
         <div className="panel-card-heading">
-          <span className="panel-card-index">03</span>
+          <span className="panel-card-index">02</span>
           <div>
             <h2>Todos los accesos</h2>
             <p>Estado global de las invitaciones emitidas por el equipo.</p>
@@ -190,7 +218,7 @@ export default async function AdminPage() {
 
       <section className="panel-card admin-card admin-card-wide">
         <div className="panel-card-heading">
-          <span className="panel-card-index">04</span>
+          <span className="panel-card-index">03</span>
           <div>
             <h2>Logs recientes</h2>
             <p>Últimos eventos relevantes del sistema de acceso privado.</p>

@@ -33,6 +33,7 @@ src/
       instructivo/        # guía interna solo Owner
     consultor/            # Panel Consultor
       instructivo/        # guía operativa para Consultor u Owner
+      registro/           # solicitud pública de cuenta Consultor
     login/                # login Owner/Consultor
     polo-logistico/       # narrativa territorial separada
     auth-actions.ts       # logout
@@ -53,6 +54,7 @@ public/
 supabase/
   migrations/
     001_access_control.sql
+    002_consultant_approval_status.sql
 proxy.ts                  # protección básica y refresh de sesión
 ```
 
@@ -64,9 +66,10 @@ proxy.ts                  # protección básica y refresh de sesión
 | `/polo-logistico` | Owner, Consultor o Visitante válido | `proxy.ts` y `requirePresentationAccess()` |
 | `/login` | Pública | incluida en `PUBLIC_ROUTES` |
 | `/access/[slug]` | Pública para validar PIN | incluida por prefijo `/access`; la verificación ocurre server-side |
+| `/consultor/registro` | Pública para solicitar cuenta Consultor | incluida en `PUBLIC_ROUTES`; crea perfil `pending` mediante Server Action |
 | `/admin` | Solo Owner | `requireOwner()` |
 | `/admin/instructivo` | Solo Owner | `requireOwner()` |
-| `/consultor` | Consultor u Owner | `requireConsultantOrOwner()` |
+| `/consultor` | Consultor autenticado u Owner | activos operan; pendientes/inactivos ven únicamente su estado |
 | `/consultor/instructivo` | Consultor u Owner | `requireConsultantOrOwner()` |
 
 Los assets de `/_next/*`, `/images/*`, favicon y extensiones de imagen admitidas quedan fuera del matcher de protección.
@@ -77,7 +80,8 @@ Los assets de `/_next/*`, `/images/*`, favicon y extensiones de imagen admitidas
 
 - Panel: `/admin`.
 - Identificación visual actual: **Panel Owner** / **Panel del dueño**.
-- Puede crear, activar y desactivar consultores.
+- Puede aprobar, activar, desactivar y borrar lógicamente consultores.
+- Borrar un consultor revoca sus accesos activos y conserva la trazabilidad.
 - Puede crear accesos desde `/consultor`.
 - Puede revocar cualquier acceso.
 - Puede ver accesos globales y logs.
@@ -86,7 +90,9 @@ Los assets de `/_next/*`, `/images/*`, favicon y extensiones de imagen admitidas
 ### Consultor
 
 - Panel: `/consultor`.
-- Identificación visual actual: **Panel Consultor** / **Panel de un consultor creado por el dueño**.
+- Se registra con email y contraseña propios desde `/consultor/registro`.
+- Requiere aprobación Owner antes de operar.
+- Identificación visual actual: **Panel Consultor**.
 - Puede crear links únicos y PINs propios.
 - Puede ver y revocar sus propios accesos.
 - Puede consultar el instructivo operativo en `/consultor/instructivo`.
@@ -102,13 +108,17 @@ Los assets de `/_next/*`, `/images/*`, favicon y extensiones de imagen admitidas
 
 ## 6. Supabase
 
-La migración real es `supabase/migrations/001_access_control.sql`.
+Las migraciones reales son:
+
+- `supabase/migrations/001_access_control.sql`: esquema base de acceso privado.
+- `supabase/migrations/002_consultant_approval_status.sql`: estados, aprobación y baja lógica de consultores.
 
 ### `profiles`
 
 - Relación uno a uno con `auth.users`.
-- Campos principales: `id`, `email`, `full_name`, `role`, `active`, `created_at`.
+- Campos principales: `id`, `email`, `full_name`, `role`, `active`, `status`, `created_at`.
 - Roles persistidos: `owner`, `consultant`.
+- Estados de consultor: `pending`, `active`, `inactive`, `deleted`.
 
 ### `access_tokens`
 
@@ -119,7 +129,7 @@ La migración real es `supabase/migrations/001_access_control.sql`.
 ### `access_logs`
 
 - Registra eventos de consultores, accesos, PIN y sesiones viewer.
-- Eventos definidos: creación/estado de consultor, creación/revocación de acceso, PIN correcto/incorrecto/bloqueado/vencido y sesión viewer.
+- Eventos definidos: registro/aprobación/estado/baja de consultor, creación/revocación de acceso, PIN correcto/incorrecto/bloqueado/vencido y sesión viewer.
 
 ### RLS y service role
 
@@ -132,7 +142,10 @@ La migración real es `supabase/migrations/001_access_control.sql`.
 ## 7. Autenticación y acceso
 
 - Owner y Consultor ingresan por email/password con Supabase Auth.
-- No existe signup público.
+- No existe signup directo desde clientes Supabase.
+- `/consultor/registro` ofrece solicitud pública controlada mediante Server Action con service role; crea `status=pending` y `active=false`.
+- Solo perfiles `active=true` y `status=active` pueden operar, generar accesos o ver la presentación.
+- Consultores pendientes o inactivos solo ven una pantalla de estado; los borrados no entran al Panel Consultor.
 - El login valida además que exista un `profile` activo.
 - El PIN Visitante:
   - siempre tiene 4 dígitos y admite ceros iniciales;
@@ -150,15 +163,18 @@ La migración real es `supabase/migrations/001_access_control.sql`.
 
 1. Refresca/consulta la sesión Supabase.
 2. Permite `/login` y `/access`.
-3. Permite usuarios autenticados.
-4. Permite cookie viewer válida únicamente para `/` y `/polo-logistico`.
-5. Redirige el resto a `/login`.
+3. Permite `/consultor/registro` para solicitudes públicas.
+4. Permite usuarios autenticados; los guards server-side deciden su capacidad real.
+5. Permite cookie viewer válida únicamente para `/` y `/polo-logistico`.
+6. Redirige el resto a `/login`.
 
 La autorización fina no depende solo del proxy:
 
 - `/admin` y `/admin/instructivo` ejecutan `requireOwner()`.
 - `/consultor` ejecuta `requireConsultantOrOwner()`.
 - `/consultor/instructivo` ejecuta `requireConsultantOrOwner()`.
+
+En `/consultor`, la página usa el perfil autenticado para mostrar estado `pending` o `inactive`, pero las Server Actions operativas siempre exigen `requireConsultantOrOwner()`.
 - La presentación ejecuta `requirePresentationAccess()`.
 
 ## 9. Presentación principal

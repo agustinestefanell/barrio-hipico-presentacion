@@ -28,14 +28,18 @@ export async function loginAction(
   const admin = createAdminClient();
   const { data: profile } = await admin
     .from("profiles")
-    .select("role, active")
+    .select("*")
     .eq("id", data.user.id)
     .maybeSingle();
 
-  if (!profile?.active) {
+  if (!profile || profile.status === "deleted") {
     await supabase.auth.signOut();
     return { error: "Credenciales inválidas o acceso deshabilitado." };
   }
 
-  redirect(profile.role === "owner" ? "/admin" : "/consultor");
+  if (profile.role === "owner" && profile.active && (!profile.status || profile.status === "active")) {
+    redirect("/admin");
+  }
+
+  redirect("/consultor");
 }

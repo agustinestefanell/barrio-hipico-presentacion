@@ -4,63 +4,122 @@ import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function createConsultantAction(formData: FormData) {
-  const owner = await requireOwner();
-  const fullName = String(formData.get("full_name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
-  if (!fullName || !email || password.length < 8) return;
-
-  const admin = createAdminClient();
-  const { data, error } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name: fullName },
-  });
-  if (error || !data.user) return;
-
-  const { error: profileError } = await admin.from("profiles").insert({
-    id: data.user.id,
-    email,
-    full_name: fullName,
-    role: "consultant",
-    active: true,
-  });
-  if (profileError) {
-    await admin.auth.admin.deleteUser(data.user.id);
-    return;
-  }
-
-  await admin.from("access_logs").insert({
-    consultant_id: data.user.id,
-    event_type: "consultant_created",
-    metadata: { created_by: owner.id },
-  });
-  revalidatePath("/admin");
-}
-
-export async function toggleConsultantAction(formData: FormData) {
+export async function approveConsultantAction(formData: FormData) {
   const owner = await requireOwner();
   const consultantId = String(formData.get("consultant_id") ?? "");
-  const nextActive = String(formData.get("next_active") ?? "") === "true";
   if (!consultantId || consultantId === owner.id) return;
 
   const admin = createAdminClient();
   const { data: consultant } = await admin
     .from("profiles")
-    .select("id, role")
+    .select("id, role, status")
     .eq("id", consultantId)
     .maybeSingle();
-  if (!consultant || consultant.role !== "consultant") return;
+  if (!consultant || consultant.role !== "consultant" || consultant.status !== "pending") return;
 
-  await admin.from("profiles").update({ active: nextActive }).eq("id", consultantId);
+  const { data: approved, error } = await admin
+    .from("profiles")
+    .update({ active: true, status: "active" })
+    .eq("id", consultantId)
+    .eq("status", "pending")
+    .select("id")
+    .maybeSingle();
+  if (error || !approved) return;
+
+  await admin.from("access_logs").insert({
+    consultant_id: consultantId,
+    event_type: "consultant_approved",
+    metadata: { approved_by: owner.id },
+  });
+  revalidatePath("/admin");
+}
+
+export async function setConsultantStatusAction(formData: FormData) {
+  const owner = await requireOwner();
+  const consultantId = String(formData.get("consultant_id") ?? "");
+  const nextStatus = String(formData.get("next_status") ?? "");
+  if (!consultantId || consultantId === owner.id || !["active", "inactive"].includes(nextStatus)) return;
+
+  const admin = createAdminClient();
+  const { data: consultant } = await admin
+    .from("profiles")
+    .select("id, role, status")
+    .eq("id", consultantId)
+    .maybeSingle();
+  if (
+    !consultant ||
+    consultant.role !== "consultant" ||
+    !["active", "inactive"].includes(consultant.status)
+  ) return;
+
+  const nextActive = nextStatus === "active";
+  const { data: updated, error } = await admin
+    .from("profiles")
+    .update({ active: nextActive, status: nextStatus })
+    .eq("id", consultantId)
+    .eq("status", consultant.status)
+    .select("id")
+    .maybeSingle();
+  if (error || !updated) return;
+
   await admin.from("access_logs").insert({
     consultant_id: consultantId,
     event_type: nextActive ? "consultant_enabled" : "consultant_disabled",
     metadata: { changed_by: owner.id },
   });
   revalidatePath("/admin");
+}
+
+export async function deleteConsultantAction(formData: FormData) {
+  const owner = await requireOwner();
+  const consultantId = String(formData.get("consultant_id") ?? "");
+  if (!consultantId || consultantId === owner.id) return;
+
+  const admin = createAdminClient();
+  const { data: consultant } = await admin
+    .from("profiles")
+    .select("id, role, status, email, full_name")
+    .eq("id", consultantId)
+    .maybeSingle();
+  if (!consultant || consultant.role !== "consultant" || consultant.status === "deleted") return;
+
+  const { data: activeTokens, error: tokenReadError } = await admin
+    .from("access_tokens")
+    .select("id")
+    .eq("consultant_id", consultantId)
+    .eq("active", true);
+  if (tokenReadError) return;
+
+  if ((activeTokens ?? []).length > 0) {
+    const { error: revokeError } = await admin
+      .from("access_tokens")
+      .update({ active: false, revoked_at: new Date().toISOString() })
+      .eq("consultant_id", consultantId)
+      .eq("active", true);
+    if (revokeError) return;
+  }
+
+  const { data: deletedProfile, error: profileError } = await admin
+    .from("profiles")
+    .update({ active: false, status: "deleted" })
+    .eq("id", consultantId)
+    .neq("status", "deleted")
+    .select("id")
+    .maybeSingle();
+  if (profileError || !deletedProfile) return;
+
+  await admin.from("access_logs").insert({
+    consultant_id: consultantId,
+    event_type: "consultant_deleted",
+    metadata: {
+      deleted_by: owner.id,
+      email: consultant.email,
+      full_name: consultant.full_name,
+      revoked_accesses: (activeTokens ?? []).length,
+    },
+  });
+  revalidatePath("/admin");
+  revalidatePath("/consultor");
 }
 
 export async function revokeAnyAccessAction(formData: FormData) {

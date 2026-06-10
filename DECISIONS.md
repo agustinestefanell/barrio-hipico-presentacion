@@ -20,6 +20,20 @@
 - **Motivo:** autonomía comercial sin perder control global.
 - **Consecuencia:** panel separado `/consultor`, consultas filtradas por `consultant_id` y anonimato visual del Owner.
 
+## 2026-06 — Registro consultor sujeto a aprobación Owner
+
+- **Decisión:** cada Consultor crea su email y contraseña, pero comienza como `pending` e inactivo.
+- **Motivo:** evitar que el Owner gestione contraseñas ajenas sin conceder acceso operativo automático.
+- **Consecuencia:** `/consultor/registro` es público, mientras que generar links/PINs exige `active=true` y `status=active`.
+- **Límite:** los links/PINs creados por consultores aprobados quedan activos inmediatamente y no requieren aprobación individual.
+
+## 2026-06 — Borrar consultor significa baja lógica
+
+- **Decisión:** conservar perfil y logs al borrar un Consultor.
+- **Motivo:** preservar trazabilidad en un contexto de acceso privado y NDA.
+- **Consecuencia:** la baja marca `status=deleted`, desactiva el perfil, revoca sus accesos activos y registra `consultant_deleted`.
+- **Límite:** no se elimina físicamente el usuario Auth ni el historial en esta fase.
+
 ## 2026-06 — Link único + PIN de 4 dígitos
 
 - **Decisión:** mantener un PIN de 4 dígitos por simplicidad operativa.

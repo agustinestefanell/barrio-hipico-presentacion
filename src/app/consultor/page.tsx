@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/auth-actions";
-import { requireConsultantOrOwner } from "@/lib/auth/roles";
+import {
+  isProfileOperational,
+  requireAuthenticatedProfile,
+} from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import CreateAccessForm from "./CreateAccessForm";
 import { revokeOwnAccessAction } from "./actions";
@@ -25,7 +29,34 @@ function statusClass(status: string) {
 }
 
 export default async function ConsultantPage() {
-  const profile = await requireConsultantOrOwner();
+  const profile = await requireAuthenticatedProfile();
+  if (profile.status === "deleted") redirect("/login");
+
+  if (!isProfileOperational(profile)) {
+    const pending = profile.status === "pending";
+
+    return (
+      <main className="access-shell login-shell">
+        <section className="access-card account-status-card">
+          <div className="access-brand" aria-hidden="true">
+            <span>BH</span>
+            <small>Barrio Hípico · Canelones</small>
+          </div>
+          <p className="eyebrow">{pending ? "Solicitud recibida" : "Acceso desactivado"}</p>
+          <h1>{pending ? "Cuenta pendiente de aprobación" : "Cuenta inactiva"}</h1>
+          <p className="access-lead">
+            {pending
+              ? "Tu cuenta fue creada correctamente, pero todavía no fue aprobada por el Owner. Cuando sea aprobada, vas a poder generar accesos para inversores."
+              : "Tu cuenta fue desactivada por el Owner. Contactalo si necesitás recuperar el acceso operativo."}
+          </p>
+          <form action={logoutAction}>
+            <button className="access-button" type="submit">Cerrar sesión</button>
+          </form>
+        </section>
+      </main>
+    );
+  }
+
   const admin = createAdminClient();
   const query = admin.from("access_tokens").select("*").order("created_at", { ascending: false });
   const { data: tokens = [] } =
@@ -40,7 +71,7 @@ export default async function ConsultantPage() {
         <div className="panel-heading">
           <p className="eyebrow">Consultor</p>
           <h1>Panel Consultor</h1>
-          <p className="panel-role-label">Panel de un consultor creado por el dueño</p>
+          <p className="panel-role-label">Panel operativo sujeto a aprobación del Owner</p>
           <Link className="panel-guide-primary" href="/consultor/instructivo">
             INSTRUCTIVO: Cómo generar y enviar accesos a inversores
           </Link>

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getViewerCookie } from "./viewer-cookie";
 
 export type ProfileRole = "owner" | "consultant";
+export type ProfileStatus = "pending" | "active" | "inactive" | "deleted";
 
 export type CurrentProfile = {
   id: string;
@@ -14,8 +15,15 @@ export type CurrentProfile = {
   full_name: string | null;
   role: ProfileRole;
   active: boolean;
+  status?: ProfileStatus;
   created_at: string;
 };
+
+export function isProfileOperational(
+  profile: Pick<CurrentProfile, "active" | "status">,
+) {
+  return profile.active && (!profile.status || profile.status === "active");
+}
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   if (!hasSupabaseEnv()) return null;
@@ -27,19 +35,27 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
 
   const admin = createAdminClient();
   const { data } = await admin.from("profiles").select("*").eq("id", user.id).maybeSingle();
-  return data?.active ? (data as CurrentProfile) : null;
+  return data ? (data as CurrentProfile) : null;
+}
+
+export async function requireAuthenticatedProfile() {
+  const profile = await getCurrentProfile();
+  if (!profile) redirect("/login");
+  return profile;
 }
 
 export async function requireOwner() {
-  const profile = await getCurrentProfile();
-  if (!profile) redirect("/login");
+  const profile = await requireAuthenticatedProfile();
+  if (!isProfileOperational(profile)) redirect("/login");
   if (profile.role !== "owner") redirect("/consultor");
   return profile;
 }
 
 export async function requireConsultantOrOwner() {
-  const profile = await getCurrentProfile();
-  if (!profile) redirect("/login");
+  const profile = await requireAuthenticatedProfile();
+  if (!isProfileOperational(profile)) {
+    redirect(profile.role === "consultant" ? "/consultor" : "/login");
+  }
   return profile;
 }
 
@@ -67,7 +83,7 @@ export async function hasValidViewerAccess() {
 
 export async function requirePresentationAccess() {
   const profile = await getCurrentProfile();
-  if (profile) return { type: "profile" as const, profile };
+  if (profile && isProfileOperational(profile)) return { type: "profile" as const, profile };
   if (await hasValidViewerAccess()) return { type: "viewer" as const };
   redirect("/login");
 }

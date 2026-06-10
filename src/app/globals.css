@@ -2564,6 +2564,65 @@ a {
   opacity: 0.52;
 }
 
+.consultant-registration-link {
+  display: grid;
+  margin-top: 24px;
+  padding: 18px 0 0;
+  gap: 7px;
+  border-top: 1px solid var(--line);
+}
+
+.consultant-registration-link a,
+.access-secondary-link {
+  width: fit-content;
+  color: var(--copper-dark);
+  font-size: var(--type-small);
+  font-weight: 700;
+  border-bottom: 1px solid rgba(164, 94, 58, 0.32);
+}
+
+.consultant-registration-link small {
+  color: var(--forest);
+  font-size: var(--type-label);
+  line-height: 1.5;
+  opacity: 0.55;
+}
+
+.access-secondary-link {
+  display: inline-flex;
+  margin-top: 24px;
+}
+
+.registration-success {
+  display: grid;
+  padding: 22px;
+  gap: 14px;
+  color: var(--forest);
+  background: rgba(49, 95, 72, 0.08);
+  border: 1px solid rgba(49, 95, 72, 0.2);
+  border-radius: 9px;
+}
+
+.registration-success strong {
+  font-family: var(--serif);
+  font-size: var(--type-card-title);
+  font-weight: 400;
+}
+
+.registration-success p {
+  margin: 0;
+  font-size: var(--type-small);
+  line-height: 1.6;
+}
+
+.registration-success .access-button {
+  width: fit-content;
+}
+
+.account-status-card form {
+  margin-top: 28px;
+}
+
 .setup-notice,
 .form-error {
   border-radius: 3px;
@@ -2955,6 +3014,18 @@ a {
   background: rgba(49, 95, 72, 0.11);
 }
 
+.admin-badge.is-active {
+  color: #315f48;
+  background: rgba(49, 95, 72, 0.11);
+}
+
+.admin-badge.is-pending {
+  color: #74603b;
+  background: rgba(184, 155, 100, 0.17);
+}
+
+.admin-badge.is-inactive,
+.admin-badge.is-deleted,
 .admin-badge.is-inactivo,
 .admin-badge.is-revocado,
 .admin-badge.is-agotado {
@@ -2983,6 +3054,30 @@ a {
   background: rgba(255, 255, 255, 0.4);
   border-color: rgba(164, 94, 58, 0.36);
   transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.consultant-table {
+  min-width: 1050px;
+}
+
+.consultant-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.consultant-actions form {
+  display: inline-flex;
+}
+
+.table-action.is-approve {
+  color: #315f48;
+  border-color: rgba(49, 95, 72, 0.35);
+}
+
+.table-action.is-delete {
+  color: #8b4933;
+  border-color: rgba(139, 73, 51, 0.35);
 }
 
 .copy-link-button {

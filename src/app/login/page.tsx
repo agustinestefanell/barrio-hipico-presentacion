@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 import LoginForm from "./LoginForm";
 
@@ -23,6 +24,10 @@ export default function LoginPage() {
           </p>
         )}
         <LoginForm />
+        <div className="consultant-registration-link">
+          <Link href="/consultor/registro">Soy consultor y necesito solicitar acceso</Link>
+          <small>El registro de consultores requiere aprobación del Owner.</small>
+        </div>
         <p className="access-help">
           Los invitados deben utilizar el link único recibido junto con su PIN.
         </p>
