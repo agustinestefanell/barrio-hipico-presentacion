@@ -31,7 +31,7 @@ Estados permitidos: `Closed`, `Partial`, `UI-only`, `Deferred`, `Broken`, `Needs
 | Área | Feature | Estado | Evidencia | Pendiente | Última OE / commit |
 |---|---|---|---|---|---|
 | Auth | Supabase Auth email/password | Closed | `login/actions.ts` usa `signInWithPassword` y perfil activo | Verificar Vercel fuera del repo | `ae78647` |
-| Auth | Registro controlado de consultores | Closed | `/consultor/registro` crea Auth user y perfil `pending`; re-registro posible tras borrado definitivo | Evaluar rate limit si recibe abuso | `18e1207` |
+| Auth | Registro controlado de consultores | Closed | `/consultor/registro` crea Auth user y perfil `pending`; re-registro posible tras borrado definitivo; Owner ve "Volver al Panel Owner" | Evaluar rate limit si recibe abuso | `5c30adf` |
 | Auth | Recuperación de contraseña | Closed | `/login/reset-password` + `/auth/confirm`; Owner puede enviar recovery desde Panel; requiere `NEXT_PUBLIC_SITE_URL` en Vercel | Configurar Redirect URLs en Supabase Auth | `18e1207` |
 | Owner | Panel Owner | Closed | Query exclusiva `role=consultant`, exclusión Owner, aprobación, desactivación, borrado definitivo, recuperación de contraseña, diagnóstico por consultor | Ninguno pendiente de código | `18e1207` |
 | Owner | Instructivo interno | Needs Review | `/admin/instructivo` protegido, pero aún describe alta manual con contraseña temporal | Actualizar en una OE autorizada | `c821a2c` |

@@ -173,3 +173,14 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Commit:** por crear.
 - **Riesgos/pendientes:** para el caso Santiago, ejecutar el SQL de borrado manual en Supabase antes de que el nuevo deploy esté activo, o usar el Panel Owner después del deploy.
 - **Estado final:** Closed.
+
+### 2026-06-10 — Botón volver al Panel Owner desde registro de consultor
+
+- **Diagnóstico:** desde `/admin` → "Crear consultor" → `/consultor/registro` no había forma de volver al Panel Owner sin usar el botón atrás del navegador.
+- **Archivos tocados:** `src/app/consultor/registro/page.tsx`, `src/app/consultor/registro/RegistrationForm.tsx` (nuevo).
+- **Cambios realizados:** `page.tsx` convertido a Server Component que llama `getCurrentProfile()` y pasa `isOwner` al formulario. `RegistrationForm.tsx` extraído como Client Component; muestra "Volver al Panel Owner" → `/admin` si `isOwner`, "Volver al login" en caso contrario.
+- **Protección:** la detección de Owner ocurre server-side; no se expone lógica de rol al cliente. La lógica de registro no fue modificada.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron; `/consultor/registro` pasó de estático a dinámico (correcto, ahora lee sesión).
+- **Commit:** por crear.
+- **Riesgos/pendientes:** ninguno identificado.
+- **Estado final:** Closed.
