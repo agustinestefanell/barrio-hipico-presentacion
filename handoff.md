@@ -217,6 +217,16 @@ El repositorio compila y tiene dos commits identificados. Al crear este handoff 
 - **Riesgos/pendientes:** ninguno de código. Si se reemplaza `Caratula.png`, actualizar `Hero.tsx`.
 - **Estado final:** Closed.
 
+### 2026-06-10 — Reemplazo imagen inferior repetida por "2a imagen"
+
+- **Diagnóstico:** `CoverImage.tsx` usaba `Caratula.png`, mismo asset que el Hero → imagen duplicada. El ancho del contenedor (960px) era menor al del hero-image-box (1100px).
+- **Archivos tocados:** `src/components/CoverImage.tsx`, `src/app/globals.css`.
+- **Cambios realizados:** `CoverImage.tsx` src cambiado a `/images/relleno/2a%20imagen.png` (`public/images/relleno/2a imagen.png`). `.cover-image-box` pasa de `max-width:960px` a `width:min(1100px,100%)` para igualar el ancho visual al del Hero.
+- **Protección:** no se modificaron auth, admin, consultor, roles ni Supabase.
+- **Resultado de build:** `npm run lint` y `npm run build` pasaron; TypeScript sin errores.
+- **Commit:** ver último commit.
+- **Estado final:** Closed.
+
 ### 2026-06-10 — Carátula como box centrado apaisado (reemplazo de background)
 
 - **Diagnóstico:** `Caratula.png` quedaba como CSS background full-bleed del hero (modo fondo de pantalla). El Owner requirió que aparezca como imagen contenida, centrada y en formato apaisado.
