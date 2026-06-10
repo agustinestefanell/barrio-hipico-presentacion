@@ -20,12 +20,12 @@ export default function Hero() {
           <em>Hípico</em>
         </h1>
         <p className="hero-subtitle">Urbanización de lujo enfocada en los caballos</p>
-        <div className="hero-triptych">
+        <div className="hero-image-box">
           <Image
-            src="/images/hero/hero-triptych.png"
-            alt="Barrio Hípico — tres escenas"
-            width={1800}
-            height={600}
+            src="/images/relleno/Caratula.png"
+            alt="Barrio Hípico"
+            width={1920}
+            height={1080}
             style={{ width: "100%", height: "auto" }}
             priority
           />
@@ -35,7 +35,7 @@ export default function Hero() {
             Ver proyecto <span aria-hidden="true">↓</span>
           </Link>
           <Link href="/polo-logistico" className="button button-secondary">
-            Opción terrenos polo logístico
+            Polo logístico
           </Link>
         </div>
       </div>
